@@ -1,0 +1,333 @@
+/* /styles/Sudents.module.css */
+
+/* --- ROOT VARIABLES (ASSUMED) --- */
+:root {
+    --primary-color: #007bff;
+    --primary-hover-color: #0056b3;
+    --card-bg: #ffffff;
+    --page-bg: #f8f9fa;
+    --text-secondary: #6c757d;
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --shadow-strong: rgba(0, 0, 0, 0.1);
+    --present-color: #28a745;
+    --absent-color: #dc3545;
+    --present-bg-light: rgba(40, 167, 69, 0.1);
+    --absent-bg-light: rgba(220, 53, 69, 0.1);
+}
+
+.mainContainer {
+    padding: 25px;
+    max-width: 1300px;
+    margin: auto;
+    background-color: var(--page-bg);
+}
+
+/* --- Page Header --- */
+.pageHeader {
+    background: var(--card-bg);
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.headerTitleSection .title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #333;
+}
+.headerTitleSection .subtitle {
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.backLink:hover {
+    background-color: var(--primary-hover-color);
+    transform: translateY(-2px);
+}
+
+/* --- Generic Card Style --- */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    margin-bottom: 25px;
+    border-top: 4px solid var(--primary-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px var(--shadow-strong);
+}
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #444;
+}
+
+/* --- Global Filter Card --- */
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+.filters .formGroup {
+    flex-grow: 1;
+}
+.filters label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.9em;
+    color: #555;
+}
+.filters input {
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.filters input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+.filterButtons {
+    display: flex;
+    gap: 10px;
+}
+.btn {
+    color: white;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.btn:hover {
+    transform: translateY(-2px);
+}
+.btnPrimary {
+    background-color: var(--primary-color);
+}
+.btnPrimary:hover {
+    background-color: var(--primary-hover-color);
+}
+.btnSecondary {
+    background-color: #6c757d;
+}
+.btnSecondary:hover {
+    background-color: #5a6268;
+}
+
+/* --- Main Content Layout --- */
+.attendanceSummaryLayout {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 25px;
+}
+
+/* --- Professional Summary Card --- */
+.summaryCardContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+.percentageDisplay {
+    text-align: center;
+    padding-right: 25px;
+    border-right: 2px solid #eaecf1;
+}
+.percentageDisplay .value {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1.1;
+}
+.percentageDisplay .label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.statsBreakdown {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.statItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+}
+.statItem svg { /* Support for FontAwesome component */
+    font-size: 1.4rem;
+    width: 20px;
+    text-align: center;
+}
+.statItem .text .label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+.statItem .text .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.present {
+    color: var(--present-color);
+    background-color: var(--present-bg-light);
+}
+.absent {
+    color: var(--absent-color);
+    background-color: var(--absent-bg-light);
+}
+
+/* --- Pie Chart Card Styles --- */
+.pieChartContainer {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* --- Attendance Records Table Card --- */
+.tableContainer {
+    overflow-x: auto;
+}
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table th,
+.table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eaecf1;
+}
+.table th {
+    background-color: var(--page-bg);
+    font-weight: 600;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.table tbody tr:hover {
+    background-color: #fafcff;
+}
+.statusBadge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-weight: 600;
+    color: white;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+.statusPresent {
+    background-color: var(--present-color);
+}
+.statusAbsent {
+    background-color: var(--absent-color);
+}
+
+/* --- Responsive Styles --- */
+@media (max-width: 1024px) {
+    .attendanceSummaryLayout {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 768px) {
+    .mainContainer {
+        padding: 15px;
+    }
+    .pageHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .headerTitleSection .title {
+        font-size: 1.8rem;
+    }
+    .summaryCardContent {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    .percentageDisplay {
+        border-right: none;
+        border-bottom: 2px solid #eaecf1;
+        padding: 0 0 15px 0;
+    }
+    .table thead {
+        display: none; /* Hide table headers on mobile */
+    }
+    .table tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+     .table td:last-child {
+        border-bottom: none;
+    }
+    .table td::before {
+        content: attr(data-label); /* Use the data-label for the responsive view */
+        font-weight: 600;
+        color: #333;
+        text-align: left;
+        padding-right: 15px;
+    }
+}
+@media (max-width: 480px) {
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filterButtons {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}

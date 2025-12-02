@@ -1,0 +1,42 @@
+/* --- BASE FOOTER STYLES --- */
+.footer {
+    text-align: center;
+    padding: 20px 15px; /* Increased base padding for better spacing */
+    background-color: #ffffff;
+    color: #777;
+    border-top: 1px solid #e0e0e0;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    z-index: 100;
+    box-sizing: border-box; /* Ensures padding is included in the width */
+}
+
+.footer p {
+    margin: 0;
+    font-size: 0.9rem; /* Base font size for desktops */
+    transition: font-size 0.3s ease-in-out; /* Smooth transition for resizing */
+}
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+
+/* For Tablets */
+@media (max-width: 768px) {
+    .footer {
+        padding: 15px 10px; /* Slightly reduce padding */
+    }
+
+    .footer p {
+        font-size: 0.85rem; /* Make font slightly smaller */
+    }
+}
+
+/* For Mobile Devices */
+@media (max-width: 480px) {
+    .footer {
+        padding: 12px 10px; /* Further reduce padding for small screens */
+    }
+
+    .footer p {
+        font-size: 0.75rem; /* Make font smaller to fit on narrow screens */
+    }
+}
