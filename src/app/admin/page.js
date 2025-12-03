@@ -4,10 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { FaUserGraduate, FaChalkboardTeacher, FaUniversity, FaBookOpen, FaFileImport, FaInfoCircle } from 'react-icons/fa';
+import { FaUserGraduate, FaChalkboardTeacher, FaUniversity, FaBookOpen, FaFileImport, FaInfoCircle, FaFileDownload } from 'react-icons/fa'; // Added FaFileDownload
 import * as XLSX from 'xlsx'; 
 import styles from '../../styles/Admin.module.css';
-import CustomSelect from '../../components/Select'; // IMPORTED CUSTOM SELECT
+import CustomSelect from '../../components/Select';
 
 // Register ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -380,11 +380,44 @@ const AttendanceTable = ({ data, colleges, courses, allClasses, onDelete, onEdit
     const handleSelectAll = (e) => setSelectedRows(e.target.checked ? filteredData.map(r => r.id) : []);
     const handleSelectRow = (id) => setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
 
+    // --- EXPORT TO EXCEL FUNCTION ---
+    const handleExportExcel = () => {
+        if (filteredData.length === 0) return alert("No data to export");
+
+        const exportData = filteredData.map(row => ({
+            "Enrollment No": row.studentId,
+            "Student Name": row.studentName,
+            "College": row.college,
+            "Course": row.course,
+            "Semester": row.semester,
+            "Class": row.class,
+            "Subject": row.subject,
+            "Date": row.date,
+            "Time": row.startTime && row.endTime ? `${row.startTime} - ${row.endTime}` : 'N/A',
+            "Status": row.status === 'P' || row.status === 'Present' ? 'Present' : 'Absent',
+            "Recorded By": row.recordedBy || 'N/A'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Attendance Report");
+        
+        // Generate filename with current date
+        const dateStr = new Date().toISOString().split('T')[0];
+        XLSX.writeFile(wb, `Attendance_Report_${dateStr}.xlsx`);
+    };
+
     return (
         <div className={styles.card}>
             <div className={styles.tableHeader}>
                 <h2>Attendance Records</h2>
-                {selectedRows.length > 0 && <button className={`${styles.addNewBtn} ${styles.deleteBtn}`} onClick={() => { onDelete(selectedRows); setSelectedRows([]); }}>Delete Selected</button>}
+                <div className={styles.tableHeaderActions}>
+                    {/* EXPORT BUTTON ADDED HERE */}
+                    <button className={`${styles.addNewBtn} ${styles.importBtn}`} onClick={handleExportExcel} style={{backgroundColor: '#28a745'}}>
+                        <FaFileDownload style={{marginRight: 5}}/> Download Excel
+                    </button>
+                    {selectedRows.length > 0 && <button className={`${styles.addNewBtn} ${styles.deleteBtn}`} onClick={() => { onDelete(selectedRows); setSelectedRows([]); }}>Delete Selected</button>}
+                </div>
             </div>
             <div className={styles.filters}>
                 <input type="text" placeholder="Search Enrollment No..." value={filters.studentId} onChange={e => setFilters({ ...filters, studentId: e.target.value })} />
