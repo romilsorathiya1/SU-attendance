@@ -7,22 +7,33 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const college = searchParams.get('college');
   const course = searchParams.get('course');
-  const semester = searchParams.get('semester'); // <--- CHANGED FROM YEAR
+  const semester = searchParams.get('semester'); 
   const cls = searchParams.get('class'); 
+  const subject = searchParams.get('subject'); // <--- NEW PARAMETER
   const view = searchParams.get('view');
   
   if (view === 'students') {
-    // Filter by semester
     const students = await Student.find({ college, course, semester, class: cls });
     return NextResponse.json(students);
   }
   
   if (view === 'records') {
+    // 1. Get all students in this class
     const students = await Student.find({ college, course, semester, class: cls });
     
+    // 2. Calculate percentage for each student, optionally filtered by subject
     const stats = await Promise.all(students.map(async (stu) => {
-      const total = await Attendance.countDocuments({ studentId: stu.enrollmentNo });
-      const present = await Attendance.countDocuments({ studentId: stu.enrollmentNo, status: 'Present' });
+      // Base query for counting attendance records
+      let query = { studentId: stu.enrollmentNo };
+      
+      // If a specific subject is requested, filter by it
+      if (subject) {
+        query.subject = subject;
+      }
+
+      const total = await Attendance.countDocuments(query);
+      const present = await Attendance.countDocuments({ ...query, status: 'Present' });
+      
       const percentage = total === 0 ? 0 : Math.round((present / total) * 100);
       
       return {
@@ -48,11 +59,10 @@ export async function POST(req) {
   await dbConnect();
   const { attendanceData, meta } = await req.json();
 
-  // --- DUPLICATE CHECK (Using Semester) ---
   const existingRecord = await Attendance.findOne({
     class: meta.cls,
     course: meta.course,
-    semester: meta.semester, // <--- CHECK SEMESTER
+    semester: meta.semester,
     college: meta.college,
     date: meta.date,
     startTime: meta.startTime
@@ -75,7 +85,7 @@ export async function POST(req) {
     endTime: meta.endTime,
     college: meta.college,
     course: meta.course,
-    semester: meta.semester, // <--- SAVE SEMESTER
+    semester: meta.semester, 
     class: meta.cls,
     recordedBy: meta.recordedBy
   }));

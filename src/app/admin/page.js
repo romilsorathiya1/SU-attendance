@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { FaUserGraduate, FaChalkboardTeacher, FaUniversity, FaBookOpen, FaFileImport, FaInfoCircle, FaFileDownload } from 'react-icons/fa'; // Added FaFileDownload
+import { FaUserGraduate, FaChalkboardTeacher, FaUniversity, FaBookOpen, FaFileImport, FaInfoCircle, FaFileDownload } from 'react-icons/fa';
 import * as XLSX from 'xlsx'; 
 import styles from '../../styles/Admin.module.css';
 import CustomSelect from '../../components/Select';
@@ -13,7 +13,7 @@ import CustomSelect from '../../components/Select';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 // Define Semesters Constant
-const SEMESTERS = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5", "Semester 6", "Semester 7", "Semester 8"];
+const SEMESTERS = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5", "Semester 6", "Semester 7", "Semester 8", "Semester 9", "Semester 10"];
 
 export default function AdminPanel() {
     const [activeSection, setActiveSection] = useState('dashboard');
@@ -42,7 +42,12 @@ export default function AdminPanel() {
 
             setData({
                 colleges: formatData(result.colleges),
-                courses: formatData(result.courses).map(c => ({ ...c, subjects: c.details?.subjects || [], college: c.parentName })),
+                courses: formatData(result.courses).map(c => ({ 
+                    ...c, 
+                    // Subjects might be array (legacy) or object (new). Backend saves 'details.subjects'.
+                    subjects: c.details?.subjects || {}, 
+                    college: c.parentName 
+                })),
                 classes: formatData(result.classes).map(cls => {
                     const parentCourse = result.courses.find(course => course.name === cls.parentName);
                     const collegeName = parentCourse ? parentCourse.parentName : '';
@@ -98,7 +103,8 @@ export default function AdminPanel() {
     const handleAddNew = async (type, newEntry) => {
         const mapType = { student: 'student', teacher: 'teacher', college: 'college', course: 'course', class: 'class' };
         let payload = { ...newEntry };
-        if (type === 'course') payload.details = { subjects: [] };
+        if (type === 'course') payload.details = { subjects: {} }; // Initialize as empty object for Semesters
+        if (type === 'class') payload.details = { semester: newEntry.semester };
         if (type === 'course' || type === 'class') payload.parentName = newEntry.course || newEntry.college;
 
         const res = await fetch('/api/admin/crud', {
@@ -166,11 +172,11 @@ export default function AdminPanel() {
         } catch (e) { alert('Error updating'); }
     };
 
-    const handleUpdateSubjects = async (courseId, updatedSubjects) => {
+    const handleUpdateSubjects = async (courseId, updatedSubjectsObject) => {
         try {
             const res = await fetch('/api/admin/crud', {
                 method: 'POST',
-                body: JSON.stringify({ action: 'update', collection: 'course', data: { id: courseId, subjects: updatedSubjects } })
+                body: JSON.stringify({ action: 'update', collection: 'course', data: { id: courseId, subjects: updatedSubjectsObject } })
             });
             if (res.ok) fetchData(); 
             else alert('Failed to update subjects');
@@ -184,7 +190,7 @@ export default function AdminPanel() {
             case 'students':
                 return <DataTable title="Students" data={data.students} headers={['Enrollment No', 'Name', 'Email', 'College', 'Course', 'Class', 'Semester', 'Mobile']} onAdd={() => setModal('student')} onImport={() => setImportModalType('student')} onDelete={(ids) => handleDelete('students', ids)} colleges={data.colleges} courses={data.courses} allClasses={data.classes} />;
             case 'teachers':
-                return <DataTable title="Teachers" data={data.teachers} headers={['No.', 'Name', 'College']} onAdd={() => setModal('teacher')} onImport={() => setImportModalType('teacher')} onDelete={(ids) => handleDelete('teachers', ids)} colleges={data.colleges} />;
+                return <DataTable title="Teachers" data={data.teachers} headers={['No.', 'Name', 'Email', 'College']} onAdd={() => setModal('teacher')} onImport={() => setImportModalType('teacher')} onDelete={(ids) => handleDelete('teachers', ids)} colleges={data.colleges} />;
             case 'colleges':
                 return <DataTable title="Colleges" data={data.colleges} headers={['No.', 'College Name']} onAdd={() => setModal('college')} onDelete={(ids) => handleDelete('colleges', ids)} />;
             case 'courses':
@@ -293,6 +299,14 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
     const handleSelectAll = (e) => setSelectedRows(e.target.checked ? filteredData.map(r => r.id || r.enrollmentNo) : []);
     const handleSelectRow = (id) => setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
 
+    // Helper to calculate total subjects from Object or Array
+    const getSubjectCount = (subData) => {
+        if (!subData) return 0;
+        if (Array.isArray(subData)) return subData.length; // Legacy
+        // New Object structure { "Sem 1": [...], "Sem 2": [...] }
+        return Object.values(subData).flat().length;
+    };
+
     return (
         <div className={styles.card}>
             <div className={styles.tableHeader}>
@@ -331,7 +345,10 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
                                     <td><input type="checkbox" className={styles.checkbox} checked={selectedRows.includes(rowId)} onChange={() => handleSelectRow(rowId)} /></td>
                                     {dataKeys.map((key, index) => (
                                         <td key={key} data-label={headers[index]}>
-                                            {key === 'rowIndex' ? rowIndex + 1 : (key === 'subjects' ? (row[key] ? row[key].length + ' Subjects' : '0') : row[key])}
+                                            {key === 'rowIndex' 
+                                                ? rowIndex + 1 
+                                                : (key === 'subjects' ? getSubjectCount(row[key]) + ' Subjects' : row[key])
+                                            }
                                         </td>
                                     ))}
                                     {(title === 'Courses' || title === 'Students') && (
@@ -402,7 +419,6 @@ const AttendanceTable = ({ data, colleges, courses, allClasses, onDelete, onEdit
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Attendance Report");
         
-        // Generate filename with current date
         const dateStr = new Date().toISOString().split('T')[0];
         XLSX.writeFile(wb, `Attendance_Report_${dateStr}.xlsx`);
     };
@@ -412,7 +428,6 @@ const AttendanceTable = ({ data, colleges, courses, allClasses, onDelete, onEdit
             <div className={styles.tableHeader}>
                 <h2>Attendance Records</h2>
                 <div className={styles.tableHeaderActions}>
-                    {/* EXPORT BUTTON ADDED HERE */}
                     <button className={`${styles.addNewBtn} ${styles.importBtn}`} onClick={handleExportExcel} style={{backgroundColor: '#28a745'}}>
                         <FaFileDownload style={{marginRight: 5}}/> Download Excel
                     </button>
@@ -463,33 +478,101 @@ const AttendanceTable = ({ data, colleges, courses, allClasses, onDelete, onEdit
     );
 };
 
+// --- UPDATED: SEMESTER WISE SUBJECT MANAGEMENT ---
 const SubjectModal = ({ course, onClose, onUpdate }) => {
+    // State to hold { "Semester 1": ["Sub1"], "Semester 2": [] }
+    const [groupedSubjects, setGroupedSubjects] = useState(() => {
+        // Handle conversion if legacy array exists
+        if (Array.isArray(course.subjects)) {
+            return course.subjects.length > 0 ? { "Semester 1": course.subjects } : {};
+        }
+        return course.subjects || {};
+    });
+
+    const [selectedSemester, setSelectedSemester] = useState('Semester 1');
     const [newSubject, setNewSubject] = useState('');
-    const [subjects, setSubjects] = useState(course.subjects || []);
 
     const handleAdd = () => {
-        if (newSubject && !subjects.includes(newSubject)) {
-            const updated = [...subjects, newSubject];
-            setSubjects(updated);
-            onUpdate(course.id, updated);
-            setNewSubject('');
+        if (newSubject && selectedSemester) {
+            const currentList = groupedSubjects[selectedSemester] || [];
+            
+            // Prevent duplicate in same semester
+            if (!currentList.includes(newSubject)) {
+                const updated = {
+                    ...groupedSubjects,
+                    [selectedSemester]: [...currentList, newSubject]
+                };
+                
+                setGroupedSubjects(updated);
+                setNewSubject('');
+                onUpdate(course.id, updated); // Save immediately
+            }
         }
     };
-    const handleDelete = (sub) => { if (confirm(`Remove ${sub}?`)) { const updated = subjects.filter(s => s !== sub); setSubjects(updated); onUpdate(course.id, updated); } };
+
+    const handleDelete = (sem, sub) => {
+        if (confirm(`Remove ${sub} from ${sem}?`)) {
+            const updatedList = groupedSubjects[sem].filter(s => s !== sub);
+            const updated = { ...groupedSubjects, [sem]: updatedList };
+            
+            // If empty, maybe remove the key? Keeping it is fine too.
+            if (updatedList.length === 0) delete updated[sem];
+
+            setGroupedSubjects(updated);
+            onUpdate(course.id, updated);
+        }
+    };
 
     return (
         <div className={styles.modal} onClick={onClose}>
             <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                 <div className={styles.modalHeader}><h2>Manage Subjects: {course.name}</h2><span className={styles.closeBtn} onClick={onClose}>&times;</span></div>
                 <div className={styles.modalBody}>
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                        <input type="text" placeholder="New Subject Name" value={newSubject} onChange={e => setNewSubject(e.target.value)} style={{ flex: 1, padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
-                        <button onClick={handleAdd} className={`${styles.addNewBtn} ${styles.saveBtn}`}>Add</button>
+                    
+                    {/* Add New Subject Section */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '10px', marginBottom: '20px', alignItems: 'end' }}>
+                        <div>
+                            <label style={{fontSize:'0.8rem', fontWeight:'bold'}}>Select Semester</label>
+                            <CustomSelect 
+                                selectedValue={selectedSemester} 
+                                onChange={(val) => setSelectedSemester(val)} 
+                                options={SEMESTERS.map(s => ({ value: s, label: s }))} 
+                                placeholder="Sem" 
+                            />
+                        </div>
+                        <div>
+                            <label style={{fontSize:'0.8rem', fontWeight:'bold'}}>Subject Name</label>
+                            <input 
+                                type="text" 
+                                placeholder="Enter Subject" 
+                                value={newSubject} 
+                                onChange={e => setNewSubject(e.target.value)} 
+                                style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc', width: '100%' }} 
+                            />
+                        </div>
+                        <button onClick={handleAdd} className={`${styles.addNewBtn} ${styles.saveBtn}`} style={{height:'42px'}}>Add</button>
                     </div>
-                    <div className={styles.subjectList}>
-                        {subjects.length === 0 && <p>No subjects added yet.</p>}
-                        {subjects.map((sub, i) => ( <div key={i} className={styles.subjectTag}>{sub} <span onClick={() => handleDelete(sub)}>&times;</span></div> ))}
+
+                    <hr style={{border: '0', borderTop: '1px solid #eee', margin: '20px 0'}} />
+
+                    {/* Display Subjects Grouped by Semester */}
+                    <div className={styles.subjectListContainer}>
+                        {Object.keys(groupedSubjects).sort().map(sem => (
+                            <div key={sem} style={{ marginBottom: '15px' }}>
+                                <h4 style={{ margin: '0 0 8px 0', color: '#555', fontSize: '0.95rem' }}>{sem}</h4>
+                                <div className={styles.subjectList}>
+                                    {groupedSubjects[sem].map((sub, i) => (
+                                        <div key={i} className={styles.subjectTag}>
+                                            {sub} <span onClick={() => handleDelete(sem, sub)}>&times;</span>
+                                        </div>
+                                    ))}
+                                    {groupedSubjects[sem].length === 0 && <span style={{fontSize:'0.8rem', color:'#999'}}>No subjects</span>}
+                                </div>
+                            </div>
+                        ))}
+                        {Object.keys(groupedSubjects).length === 0 && <p style={{textAlign:'center', color:'#888'}}>No subjects added yet.</p>}
                     </div>
+
                 </div>
             </div>
         </div>

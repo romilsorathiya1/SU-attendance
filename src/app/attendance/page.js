@@ -31,10 +31,13 @@ export default function AttendancePage() {
 
     const [selectedCollege, setSelectedCollege] = useState(searchParams.get('college') || '');
     const [selectedCourse, setSelectedCourse] = useState(searchParams.get('course') || '');
-    // CHANGED: Year -> Semester
     const [selectedSemester, setSelectedSemester] = useState(searchParams.get('semester') || '');
     const [selectedClass, setSelectedClass] = useState(searchParams.get('class') || '');
+    
+    // Subject for Taking Attendance
     const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') || '');
+    // Subject for Viewing Records (New State)
+    const [selectedRecordSubject, setSelectedRecordSubject] = useState(''); 
     
     const [hierarchy, setHierarchy] = useState({ colleges: [], courses: [], classes: [] });
     const [students, setStudents] = useState([]);
@@ -70,12 +73,21 @@ export default function AttendancePage() {
 
     const collegeOptions = hierarchy.colleges.map(c => ({ value: c.name, label: c.name }));
     const courseOptions = hierarchy.courses.filter(c => c.parentName === selectedCollege).map(c => ({ value: c.name, label: c.name }));
-    // CHANGED: Semester Options
     const semesterOptions = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5", "Semester 6", "Semester 7", "Semester 8"].map(y => ({ value: y, label: y }));
-    // CHANGED: Filter by Semester
     const classOptions = hierarchy.classes.filter(c => c.parentName === selectedCourse && c.details?.semester === selectedSemester).map(c => ({ value: c.name, label: c.name }));
+    
+    // Dynamic Subject Options Logic
     const currentCourse = hierarchy.courses.find(c => c.name === selectedCourse);
-    const subjectOptions = currentCourse?.details?.subjects?.map(s => ({ value: s, label: s })) || [];
+    let availableSubjects = [];
+    if (currentCourse && currentCourse.details && currentCourse.details.subjects) {
+        if (Array.isArray(currentCourse.details.subjects)) {
+            availableSubjects = currentCourse.details.subjects;
+        } else {
+            availableSubjects = currentCourse.details.subjects[selectedSemester] || [];
+        }
+    }
+    const subjectOptions = availableSubjects.map(s => ({ value: s, label: s }));
+
     const timeSlotOptions = TIME_SLOTS.map(slot => ({ value: slot.label, label: slot.label }));
 
     const handleTimeSlotChange = (val) => {
@@ -85,10 +97,10 @@ export default function AttendancePage() {
         else { setStartTime(''); setEndTime(''); }
     };
 
+    // --- Main Data Fetching Effect ---
     useEffect(() => {
         if (selectedCollege && selectedCourse && selectedSemester && selectedClass) {
-            // CHANGED: Query param year -> semester
-            const query = `college=${selectedCollege}&course=${selectedCourse}&semester=${selectedSemester}&class=${selectedClass}`;
+            let query = `college=${selectedCollege}&course=${selectedCourse}&semester=${selectedSemester}&class=${selectedClass}`;
             
             if (activeView === 'takeAttendance') {
                 fetch(`/api/attendance?view=students&${query}`)
@@ -100,6 +112,11 @@ export default function AttendancePage() {
                         setAttendance(initial);
                     });
             } else {
+                // For View Records, append the subject if selected
+                if (selectedRecordSubject) {
+                    query += `&subject=${encodeURIComponent(selectedRecordSubject)}`;
+                }
+                
                 setIsLoadingRecords(true);
                 fetch(`/api/attendance?view=records&${query}`)
                     .then(res => res.json())
@@ -113,14 +130,14 @@ export default function AttendancePage() {
             setStudents([]);
             setFilteredRecordStudents([]);
         }
-    }, [selectedCollege, selectedCourse, selectedSemester, selectedClass, activeView, percentageFilter]);
+    }, [selectedCollege, selectedCourse, selectedSemester, selectedClass, activeView, percentageFilter, selectedRecordSubject]);
 
     useEffect(() => {
         if (isInitialLoad.current) { isInitialLoad.current = false; return; }
         const params = new URLSearchParams();
         if (selectedCollege) params.set('college', selectedCollege);
         if (selectedCourse) params.set('course', selectedCourse);
-        if (selectedSemester) params.set('semester', selectedSemester); // CHANGED
+        if (selectedSemester) params.set('semester', selectedSemester); 
         if (selectedClass) params.set('class', selectedClass);
         params.set('view', activeView);
         router.replace(`/attendance?${params.toString()}`, { scroll: false });
@@ -155,7 +172,7 @@ export default function AttendancePage() {
                 subject: selectedSubject,
                 college: selectedCollege,
                 course: selectedCourse,
-                semester: selectedSemester, // CHANGED
+                semester: selectedSemester, 
                 cls: selectedClass,
                 recordedBy: teacherName,
                 students: students 
@@ -198,6 +215,20 @@ export default function AttendancePage() {
                         <div className={styles.formGroup}><label>Time Slot <span style={{color:'red'}}>*</span></label><CustomSelect options={timeSlotOptions} selectedValue={selectedTimeSlot} onChange={handleTimeSlotChange} placeholder="Select Time" /></div>
                         {selectedTimeSlot === 'Other' && ( <><div className={styles.formGroup}><label>Start Time <span style={{color:'red'}}>*</span></label><input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} /></div><div className={styles.formGroup}><label>End Time <span style={{color:'red'}}>*</span></label><input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} /></div></>)}
                     </>)}
+
+                    {/* NEW: Subject Selector for View Records */}
+                    {activeView === 'viewRecords' && (
+                        <div className={styles.formGroup}>
+                            <label>Subject (Optional)</label>
+                            <CustomSelect 
+                                options={subjectOptions} 
+                                selectedValue={selectedRecordSubject} 
+                                onChange={setSelectedRecordSubject} 
+                                placeholder="All Subjects" 
+                                disabled={!selectedClass} 
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {activeView === 'takeAttendance' && ( <>
@@ -222,7 +253,7 @@ export default function AttendancePage() {
                 {activeView === 'viewRecords' && ( <>
                     <div className={styles.percentageFilterContainer}><label htmlFor="percentageFilter">Show students below or equal to: <strong>{percentageFilter}%</strong></label><input type="range" id="percentageFilter" min="0" max="100" value={percentageFilter} onChange={e => setPercentageFilter(e.target.value)} className={styles.percentageSlider} /></div>
                     {isLoadingRecords ? ( <div style={{textAlign: 'center', padding: '20px', fontSize: '1.2rem', color: '#007bff'}}>Loading Records...</div> ) : (
-                        <div className={`${styles.studentList} ${styles.recordsTable}`}><h2>Student Attendance Records</h2>
+                        <div className={`${styles.studentList} ${styles.recordsTable}`}><h2>Student Attendance Records {selectedRecordSubject && `(${selectedRecordSubject})`}</h2>
                             {selectedClass ? ( 
                                 <div className={styles.recordsTableContainer}>
                                     <table>

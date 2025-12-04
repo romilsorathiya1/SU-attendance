@@ -1,9 +1,3 @@
-
-
-
-
-
-
 'use client';
 
 import { useState, useMemo, useEffect, use } from 'react';
@@ -13,18 +7,18 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faFilter, faChartLine, faPieChart, faHistory, faCheckCircle, faTimesCircle, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import styles from '../../../styles/Sudents.module.css';
+import CustomSelect from '../../../components/Select'; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function StudentAttendancePage({ params }) {
     const router = useRouter();
-    // Handling params unwrapping for Next.js 15+ vs older versions
-    // If params is a promise (Next 15), use React.use(), otherwise direct access
     const unwrappedParams = use(params); 
     const enrollmentNo = unwrappedParams.id;
 
-    const [studentInfo, setStudentInfo] = useState({ id: enrollmentNo, name: 'Loading...', course: '', year: '' });
+    const [studentInfo, setStudentInfo] = useState({ id: enrollmentNo, name: 'Loading...', course: '', year: '', semester: '' });
     const [records, setRecords] = useState([]);
+    const [availableSubjects, setAvailableSubjects] = useState([]); // NEW: State for subjects from DB
     
     useEffect(() => {
         fetch(`/api/student/${enrollmentNo}`)
@@ -32,6 +26,7 @@ export default function StudentAttendancePage({ params }) {
             .then(data => {
                 if(data.student) setStudentInfo(data.student);
                 if(data.records) setRecords(data.records);
+                if(data.subjects) setAvailableSubjects(data.subjects); // Store fetched subjects
             })
             .catch(err => {
                 setStudentInfo(prev => ({...prev, name: 'Student Not Found'}));
@@ -40,19 +35,32 @@ export default function StudentAttendancePage({ params }) {
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [selectedSubject, setSelectedSubject] = useState('');
     const [isFiltered, setIsFiltered] = useState(false);
+
+    // UPDATED: Create options from the fetched subjects list
+    const subjectOptions = useMemo(() => {
+        // If API returned subjects, use them. Otherwise fallback to unique subjects from records.
+        if (availableSubjects.length > 0) {
+            return availableSubjects.map(sub => ({ value: sub, label: sub }));
+        }
+        // Fallback
+        const uniqueFromRecords = [...new Set(records.map(r => r.subject))].filter(Boolean);
+        return uniqueFromRecords.map(sub => ({ value: sub, label: sub }));
+    }, [availableSubjects, records]);
 
     const filteredData = useMemo(() => {
         if (!isFiltered) return records;
         return records.filter(record => 
             (!startDate || record.date >= startDate) && 
-            (!endDate || record.date <= endDate)
+            (!endDate || record.date <= endDate) &&
+            (!selectedSubject || record.subject === selectedSubject)
         );
-    }, [startDate, endDate, isFiltered, records]);
+    }, [startDate, endDate, selectedSubject, isFiltered, records]);
 
     const { presentCount, absentCount, totalCount, percentage } = useMemo(() => {
         const total = filteredData.length;
-        const present = filteredData.filter(r => r.status === 'Present').length;
+        const present = filteredData.filter(r => r.status === 'Present' || r.status === 'P').length;
         const absent = total - present;
         const percent = total > 0 ? ((present / total) * 100).toFixed(1) : 0;
         return { presentCount: present, absentCount: absent, totalCount: total, percentage: percent };
@@ -88,9 +96,11 @@ export default function StudentAttendancePage({ params }) {
     };
 
     const handleFilter = () => setIsFiltered(true);
+    
     const handleReset = () => {
         setStartDate('');
         setEndDate('');
+        setSelectedSubject('');
         setIsFiltered(false);
     };
 
@@ -99,7 +109,7 @@ export default function StudentAttendancePage({ params }) {
             <header className={styles.pageHeader}>
                 <div className={styles.headerTitleSection}>
                     <h1 className={styles.title}>{studentInfo.name}'s Attendance</h1>
-                    <p className={styles.subtitle}>Enrollment: {studentInfo.enrollmentNo || studentInfo.id} | {studentInfo.course} - {studentInfo.year}</p>
+                    <p className={styles.subtitle}>Enrollment: {studentInfo.enrollmentNo || studentInfo.id} | {studentInfo.course} - {studentInfo.semester || studentInfo.year}</p>
                 </div>
                 <button onClick={() => router.back()} className={styles.backLink}>
                     <FontAwesomeIcon icon={faArrowLeft} /> Back to Attendance
@@ -107,17 +117,31 @@ export default function StudentAttendancePage({ params }) {
             </header>
 
             <div className={styles.card}>
-                <h2><FontAwesomeIcon icon={faFilter} /> Filter by Date Range</h2>
+                <h2><FontAwesomeIcon icon={faFilter} /> Filter Records</h2>
                 <div className={styles.filters}>
+                    <div className={styles.formGroup} style={{zIndex: 20}}>
+                        <label>Subject</label>
+                        <CustomSelect 
+                            selectedValue={selectedSubject} 
+                            onChange={(val) => setSelectedSubject(val)} 
+                            options={subjectOptions} 
+                            placeholder="All Subjects" 
+                        />
+                    </div>
+
                     <div className={styles.formGroup}><label htmlFor="startDate">Start Date</label><input type="date" id="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} /></div>
                     <div className={styles.formGroup}><label htmlFor="endDate">End Date</label><input type="date" id="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} /></div>
-                    <div className={styles.filterButtons}><button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleFilter}>Apply Filter</button><button className={`${styles.btn} ${styles.btnSecondary}`} onClick={handleReset}>Reset</button></div>
+                    
+                    <div className={styles.filterButtons}>
+                        <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleFilter}>Apply Filter</button>
+                        <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={handleReset}>Reset</button>
+                    </div>
                 </div>
             </div>
 
             <div className={styles.attendanceSummaryLayout}>
                 <div className={styles.card}>
-                    <h2><FontAwesomeIcon icon={faChartLine} /> Attendance Summary {isFiltered && "(Filtered Range)"}</h2>
+                    <h2><FontAwesomeIcon icon={faChartLine} /> Attendance Summary {isFiltered && "(Filtered)"}</h2>
                     <div className={styles.summaryCardContent}>
                         <div className={styles.percentageDisplay}><span className={styles.value}>{percentage}%</span><span className={styles.label}>Attendance</span></div>
                         <div className={styles.statsBreakdown}>
@@ -128,7 +152,7 @@ export default function StudentAttendancePage({ params }) {
                     </div>
                 </div>
                 <div className={styles.card}>
-                    <h2><FontAwesomeIcon icon={faPieChart} /> Distribution {isFiltered && "(Filtered Range)"}</h2>
+                    <h2><FontAwesomeIcon icon={faPieChart} /> Distribution {isFiltered && "(Filtered)"}</h2>
                     <div className={styles.pieChartContainer}><Pie data={pieChartData} options={pieChartOptions} /></div>
                 </div>
             </div>
@@ -153,8 +177,8 @@ export default function StudentAttendancePage({ params }) {
                                         <td data-label="Subject">{record.subject}</td>
                                         <td data-label="Time">{formatTimeRange(record.startTime, record.endTime)}</td>
                                         <td data-label="Status">
-                                            <span className={`${styles.statusBadge} ${record.status === 'Present' ? styles.statusPresent : styles.statusAbsent}`}>
-                                                {record.status}
+                                            <span className={`${styles.statusBadge} ${record.status === 'Present' || record.status === 'P' ? styles.statusPresent : styles.statusAbsent}`}>
+                                                {record.status === 'P' ? 'Present' : (record.status === 'A' ? 'Absent' : record.status)}
                                             </span>
                                         </td>
                                     </tr>
