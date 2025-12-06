@@ -217,7 +217,7 @@ export default function ForgotPasswordFlow({ onClose }) {
 
                                 {/* Resend Logic */}
                                 <div style={{ marginTop: '20px' }}>
-                                    <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Didn't receive code?</p>
+                                    <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Didn&apos;t receive code?</p>
                                     <button 
                                         type="button" 
                                         onClick={handleResend} 

@@ -94,7 +94,7 @@ export default function Home() {
             <div className={styles.loginWrapper}>
                 <div className={styles.heroSection}>
                     <h2><span className={styles.highlight}>Smart Attendance</span> for a Smarter Campus.</h2>
-                    <p>Empowering Shreyarth University's faculty with a seamless and intelligent way to track student attendance.</p>
+                    <p>Empowering Shreyarth University&apos;s faculty with a seamless and intelligent way to track student attendance.</p>
                     <button onClick={handleScrollToLogin} className={styles.heroBtn}>Get Started</button>
                 </div>
 

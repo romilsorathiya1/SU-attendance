@@ -34,7 +34,7 @@ export async function POST(req) {
     const expirationMs = 7 * 24 * 60 * 60 * 1000;
 
     const token = jwt.sign(
-      { id: user._id || user.enrollmentNo, role: user.role || 'Student', name: user.name },
+      { _id: user._id, role: user.role || 'Student', name: user.name },
       process.env.JWT_SECRET || 'secret123',
       { expiresIn: expiresIn }
     );

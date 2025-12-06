@@ -29,7 +29,9 @@ export default function StudentAttendancePage({ params }) {
                 if(data.subjects) setAvailableSubjects(data.subjects); // Store fetched subjects
             })
             .catch(err => {
+
                 setStudentInfo(prev => ({...prev, name: 'Student Not Found'}));
+                
             });
     }, [enrollmentNo]);
 
@@ -108,7 +110,7 @@ export default function StudentAttendancePage({ params }) {
         <div className={styles.mainContainer}>
             <header className={styles.pageHeader}>
                 <div className={styles.headerTitleSection}>
-                    <h1 className={styles.title}>{studentInfo.name}'s Attendance</h1>
+                    <h1 className={styles.title}>{studentInfo.name}&apos;s Attendance</h1>
                     <p className={styles.subtitle}>Enrollment: {studentInfo.enrollmentNo || studentInfo.id} | {studentInfo.course} - {studentInfo.semester || studentInfo.year}</p>
                 </div>
                 <button onClick={() => router.back()} className={styles.backLink}>

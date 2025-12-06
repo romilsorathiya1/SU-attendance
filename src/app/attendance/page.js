@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react'; // Added Suspense import
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from '../../styles/Attendance.module.css';
 import CustomSelect from '../../components/Select';
 
-export default function AttendancePage() {
+// Renamed original component to AttendanceContent so we can wrap it
+function AttendanceContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const isInitialLoad = useRef(true);
@@ -235,7 +236,7 @@ export default function AttendancePage() {
                     {students.length > 0 && ( 
                     <div className={styles.studentList}>
                         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                            <h2>Mark Today's Attendance</h2>
+                            <h2>Mark Today&apos;s Attendance</h2>
                             {teacherName && <span style={{fontSize:'0.9rem', color:'#666'}}>Teacher: <strong>{teacherName}</strong></span>}
                         </div>
                         <table>
@@ -269,5 +270,14 @@ export default function AttendancePage() {
                 </>)}
             </div>
         </main>
+    );
+}
+
+// This is the new wrapper component that fixes the build error
+export default function AttendancePage() {
+    return (
+        <Suspense fallback={<div style={{textAlign:'center', padding:'2rem'}}>Loading Attendance Module...</div>}>
+            <AttendanceContent />
+        </Suspense>
     );
 }

@@ -33,8 +33,23 @@ export async function middleware(request) {
       // Students cannot access attendance
       if (pathname.startsWith('/attendance') && userRole === 'Student') {
         // Redirect Student to their own profile if they try to go to attendance
-        return NextResponse.redirect(new URL(`/student/${payload.id}`, request.url));
+        return NextResponse.redirect(new URL(`/`, request.url));
       }
+
+      // --- RULE 3: STUDENT PAGE PROTECTION ---
+if (pathname.startsWith('/student/')) {
+  const parts = pathname.split('/');
+  const paramId = parts[2]; // student/[id] → "id"
+
+ 
+
+  // if (userRole === 'Student') {
+  //   if (payload.enrollmentNo !== paramId) {
+  //     return NextResponse.redirect(new URL('/', request.url));
+  //   }
+  // }
+}
+
 
       
 

@@ -28,7 +28,7 @@ export default function LoginHelpModal({ onClose, onOpenForgot }) {
                     </div>
 
                     <div style={{ marginTop: '25px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
-                        <p style={{ fontSize: '0.9rem', color: '#666' }}>Can't access your account?</p>
+                        <p style={{ fontSize: '0.9rem', color: '#666' }}>Can&apos;t access your account?</p>
                         <button onClick={onOpenForgot} className={styles.secondaryLink} style={{ marginTop: 0 }}>
                             Reset Password
                         </button>

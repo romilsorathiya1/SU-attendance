@@ -93,7 +93,6 @@
     margin-bottom: 25px;
     border-top: 4px solid var(--primary-color);
     transition: transform 0.2s, box-shadow 0.2s;
-    overflow: hidden; /* Contains overflowing content */
 }
 
 .card h2 {
