@@ -14,14 +14,16 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export default function StudentAttendancePage({ params }) {
     const router = useRouter();
     const unwrappedParams = use(params); 
-    const enrollmentNo = unwrappedParams.id;
+    const id = unwrappedParams.id;
 
-    const [studentInfo, setStudentInfo] = useState({ id: enrollmentNo, name: 'Loading...', course: '', year: '', semester: '' });
+   
+
+    const [studentInfo, setStudentInfo] = useState({ enrollmentNo: "", name: 'Loading...', course: '', year: '', semester: '' });
     const [records, setRecords] = useState([]);
     const [availableSubjects, setAvailableSubjects] = useState([]); // NEW: State for subjects from DB
     
     useEffect(() => {
-        fetch(`/api/student/${enrollmentNo}`)
+        fetch(`/api/student/${id}`)
             .then(res => res.json())
             .then(data => {
                 if(data.student) setStudentInfo(data.student);
@@ -33,7 +35,7 @@ export default function StudentAttendancePage({ params }) {
                 setStudentInfo(prev => ({...prev, name: 'Student Not Found'}));
                 
             });
-    }, [enrollmentNo]);
+    }, [id]);
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');

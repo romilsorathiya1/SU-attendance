@@ -50,7 +50,7 @@ export async function POST(req) {
     return NextResponse.json({ 
       success: true, 
       user: { 
-        id: user.enrollmentNo || user._id,
+        id: user._id,
         name: user.name, 
         email: user.email, 
         role: role, 

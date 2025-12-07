@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { FaUserGraduate, FaChalkboardTeacher, FaUniversity, FaBookOpen, FaFileImport, FaInfoCircle, FaFileDownload } from 'react-icons/fa';
+import { FaUserGraduate, FaChalkboardTeacher, FaUniversity, FaBookOpen, FaFileImport, FaInfoCircle, FaFileDownload, FaArrowUp } from 'react-icons/fa';
 import * as XLSX from 'xlsx'; 
 import styles from '../../styles/Admin.module.css';
 import CustomSelect from '../../components/Select';
@@ -160,6 +160,46 @@ export default function AdminPanel() {
         setImportModalType(null);
         fetchData();
     };
+
+    // --- NEW: Promote Students Based on Filter ---
+    const handlePromoteFiltered = async (currentFilters) => {
+        if (!currentFilters.college || !currentFilters.course || !currentFilters.semester) {
+            alert("Action Required:\nPlease select a College, Course, and specific Semester using the filters first.");
+            return;
+        }
+
+        const confirmMsg = `Are you sure you want to promote filtered students?\n\n` +
+                           `College: ${currentFilters.college}\n` +
+                           `Course: ${currentFilters.course}\n` +
+                           `Current Sem: ${currentFilters.semester}\n` +
+                           `${currentFilters.class ? `Class: ${currentFilters.class}` : ''}\n\n` +
+                           `This will increase their semester by 1.`;
+
+        if (window.confirm(confirmMsg)) {
+            try {
+                setLoading(true);
+                const res = await fetch('/api/admin/crud', {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: 'promote_filtered', 
+                        data: currentFilters 
+                    })
+                });
+                const result = await res.json();
+                setLoading(false);
+
+                if (res.ok) {
+                    alert(result.message);
+                    fetchData(); // Refresh to see changes
+                } else {
+                    alert(result.error);
+                }
+            } catch (e) {
+                setLoading(false);
+                alert("Connection error");
+            }
+        }
+    };
     
     const handleSaveAttendance = async (id, newStatus) => {
         try {
@@ -188,7 +228,18 @@ export default function AdminPanel() {
             case 'dashboard':
                 return <DashboardSection stats={data} chartData={chartData} />;
             case 'students':
-                return <DataTable title="Students" data={data.students} headers={['Enrollment No', 'Name', 'Email', 'College', 'Course', 'Class', 'Semester', 'Mobile']} onAdd={() => setModal('student')} onImport={() => setImportModalType('student')} onDelete={(ids) => handleDelete('students', ids)} colleges={data.colleges} courses={data.courses} allClasses={data.classes} />;
+                return <DataTable 
+                    title="Students" 
+                    data={data.students} 
+                    headers={['Enrollment No', 'Name', 'Email', 'College', 'Course', 'Class', 'Semester', 'Mobile']} 
+                    onAdd={() => setModal('student')} 
+                    onImport={() => setImportModalType('student')} 
+                    onDelete={(ids) => handleDelete('students', ids)} 
+                    colleges={data.colleges} 
+                    courses={data.courses} 
+                    allClasses={data.classes}
+                    onPromoteFiltered={handlePromoteFiltered} // Pass the handler
+                />;
             case 'teachers':
                 return <DataTable title="Teachers" data={data.teachers} headers={['No.', 'Name', 'Email', 'College']} onAdd={() => setModal('teacher')} onImport={() => setImportModalType('teacher')} onDelete={(ids) => handleDelete('teachers', ids)} colleges={data.colleges} />;
             case 'colleges':
@@ -205,7 +256,7 @@ export default function AdminPanel() {
 
     return (
         <div className={styles.container}>
-            {loading && <div className={styles.loadingOverlay}>Processing Import...</div>}
+            {loading && <div className={styles.loadingOverlay}>Processing...</div>}
             <Sidebar activeSection={activeSection} onNavClick={handleNavClick} isOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />
             <main className={styles.mainContent}>
                 <header className={styles.header}>
@@ -259,7 +310,7 @@ const DashboardCard = ({ title, count, icon }) => (
     </div>
 );
 
-const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges = [], courses = [], allClasses = [], onManageSubjects }) => {
+const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges = [], courses = [], allClasses = [], onManageSubjects, onPromoteFiltered }) => {
     const [filters, setFilters] = useState({ id: '', name: '', college: '', course: '', class: '', semester: '' });
     const [selectedRows, setSelectedRows] = useState([]);
 
@@ -296,7 +347,9 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
     }), [data, filters]);
 
     useEffect(() => { setSelectedRows([]); }, [filteredData]);
-    const handleSelectAll = (e) => setSelectedRows(e.target.checked ? filteredData.map(r => r.id || r.enrollmentNo) : []);
+    
+    // Corrected Select All Logic
+    const handleSelectAll = (e) => setSelectedRows(e.target.checked ? filteredData.map(r => r.enrollmentNo || r.id) : []);
     const handleSelectRow = (id) => setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
 
     // Helper to calculate total subjects from Object or Array
@@ -307,11 +360,35 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
         return Object.values(subData).flat().length;
     };
 
+    // Check if promotion is enabled
+    const canPromote = filters.college && filters.course && filters.semester;
+
     return (
         <div className={styles.card}>
             <div className={styles.tableHeader}>
                 <h2>{title} List</h2>
                 <div className={styles.tableHeaderActions}>
+                    
+                    {/* --- NEW INCREASE SEMESTER BUTTON --- */}
+                    {title === 'Students' && (
+                        <button 
+                            className={styles.addNewBtn} 
+                            onClick={() => onPromoteFiltered(filters)}
+                            disabled={!canPromote}
+                            style={{
+                                backgroundColor: '#fd7e14', // Orange
+                                marginRight: '10px',
+                                opacity: canPromote ? 1 : 0.6,
+                                cursor: canPromote ? 'pointer' : 'not-allowed'
+                            }}
+                            title="Filter by College, Course and Semester to enable"
+                        >
+                            <FaArrowUp style={{marginRight: 5}}/> 
+                            Increase Semester
+                        </button>
+                    )}
+                    {/* ------------------------------------ */}
+
                     {selectedRows.length > 0 && <button className={`${styles.addNewBtn} ${styles.deleteBtn}`} onClick={() => { onDelete(selectedRows); setSelectedRows([]); }}>Delete Selected</button>}
                     {['Students', 'Teachers', 'Classes'].includes(title) && <button className={`${styles.addNewBtn} ${styles.importBtn}`} onClick={onImport}><FaFileImport style={{marginRight: 5}}/> Import Excel</button>}
                     <button className={styles.addNewBtn} onClick={onAdd}>Add New {title.slice(0, -1)}</button>
@@ -354,7 +431,7 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
                                     {(title === 'Courses' || title === 'Students') && (
                                         <td data-label="Actions">
                                             {title === 'Courses' && <button className={styles.manageBtn} onClick={() => onManageSubjects(row)}>Manage Subjects</button>}
-                                            {title === 'Students' && <Link href={`/student/${row.enrollmentNo}`}><button className={styles.manageBtn} style={{backgroundColor: '#007bff'}}>View Full Report</button></Link>}
+                                            {title === 'Students' && <Link href={`/student/${row.id}`}><button className={styles.manageBtn} style={{backgroundColor: '#007bff'}}>View Full Report</button></Link>}
                                         </td>
                                     )}
                                 </tr>

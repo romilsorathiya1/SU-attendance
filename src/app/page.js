@@ -50,6 +50,8 @@ export default function Home() {
             if (res.ok) {
                 const data = await res.json();
                 
+                console.log("DATA :- ",data)
+
                 // Store user details in localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
                 

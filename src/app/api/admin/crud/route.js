@@ -3,6 +3,9 @@ import dbConnect from '@/lib/db';
 import { Student, Organization, User, Attendance } from '@/models/Schemas';
 import bcrypt from 'bcryptjs';
 
+// Define semesters to calculate the next one
+const SEMESTERS = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5", "Semester 6", "Semester 7", "Semester 8", "Semester 9", "Semester 10"];
+
 export async function POST(req) {
   await dbConnect();
   const body = await req.json();
@@ -51,6 +54,43 @@ export async function POST(req) {
         const { id, status } = data;
         result = await Attendance.findByIdAndUpdate(id, { status: status }, { new: true });
       }
+    }
+
+    // --- NEW: PROMOTE FILTERED STUDENTS ---
+    else if (action === 'promote_filtered') {
+      const { college, course, semester, class: className } = data;
+
+      // Validate required filters
+      if (!college || !course || !semester) {
+          return NextResponse.json({ error: "Missing required filters (College, Course, Semester)." }, { status: 400 });
+      }
+
+      // Calculate Next Semester
+      const currentIndex = SEMESTERS.indexOf(semester);
+      if (currentIndex === -1) {
+          return NextResponse.json({ error: "Invalid current semester provided." }, { status: 400 });
+      }
+      
+      const nextSemester = SEMESTERS[currentIndex + 1];
+      if (!nextSemester) {
+          return NextResponse.json({ error: "Cannot promote final semester students automatically." }, { status: 400 });
+      }
+
+      // Build Query
+      const query = { college, course, semester };
+      if (className) query.class = className;
+
+      // Execute Update
+      const updateResult = await Student.updateMany(query, { $set: { semester: nextSemester } });
+
+      if (updateResult.modifiedCount === 0) {
+          return NextResponse.json({ error: "No students found matching these filters." }, { status: 404 });
+      }
+
+      result = { 
+          success: true, 
+          message: `Successfully promoted ${updateResult.modifiedCount} students from ${semester} to ${nextSemester}.` 
+      };
     }
 
     // --- DELETE ---
