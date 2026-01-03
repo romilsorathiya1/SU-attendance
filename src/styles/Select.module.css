@@ -1,0 +1,80 @@
+/* --- CUSTOM SELECT STYLES --- */
+.customSelect { 
+    position: relative; 
+    width: 100%; 
+    font-size: 0.95rem; 
+}
+
+.customSelect__trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #dee2e6; /* Changed to explicit hex/standard border color if variable fails */
+    border-radius: 5px;
+    cursor: pointer;
+    background: #ffffff; /* FIXED: Was var(--white-color) which was undefined = transparent */
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 10; /* Lowered this slightly */
+    height: 45px; /* Added fixed height for consistency */
+}
+
+.customSelect__trigger .arrow { position: relative; height: 10px; width: 10px; }
+.customSelect__trigger .arrow::before, .customSelect__trigger .arrow::after {
+    content: ''; position: absolute; bottom: 0px; width: 0.15rem; height: 100%; transition: all 0.3s;
+}
+.customSelect__trigger .arrow::before { left: -3px; transform: rotate(-45deg); background-color: #555; }
+.customSelect__trigger .arrow::after { left: 3px; transform: rotate(45deg); background-color: #555; }
+
+/* Open State Styles */
+.customSelect.open .customSelect__trigger { border-color: #007bff; } /* Use blue or var(--primary-color) */
+.customSelect.open .arrow::before { transform: rotate(45deg); }
+.customSelect.open .arrow::after { transform: rotate(-45deg); }
+
+.customSelect__options {
+    position: absolute; 
+    top: 105%; 
+    left: 0; 
+    right: 0;
+    background: #ffffff; /* FIXED: Was var(--white-color) = transparent */
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    z-index: 1000; /* FIXED: Increased significantly to sit ABOVE everything else */
+    list-style: none; 
+    padding: 5px 0; 
+    margin: 0;
+    opacity: 0; 
+    visibility: hidden; 
+    transform: translateY(-10px);
+    transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+    max-height: 200px; 
+    overflow-y: auto;
+}
+
+.customSelect.open .customSelect__options { 
+    opacity: 1; 
+    visibility: visible; 
+    transform: translateY(0); 
+}
+
+.customSelect__option { 
+    padding: 10px 15px; 
+    cursor: pointer; 
+    transition: background-color 0.2s;
+    color: #333; 
+}
+
+.customSelect__option:hover, .customSelect__option.selected { 
+    background-color: #f0f2f5; /* FIXED: Was var(--light-color) */
+    color: #007bff; /* Highlight color */
+    font-weight: 500; 
+}
+
+.customSelect.disabled .customSelect__trigger { 
+    background-color: #e9ecef; 
+    cursor: not-allowed; 
+    color: #868e96; 
+}

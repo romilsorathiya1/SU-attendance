@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* --- VARIABLE DEFINITIONS --- */
+:root {
+    --border-color: #cccccc;
+    --white-color: #ffffff;
+    --secondary-color: #007bff;
+    --light-color: #f8f9fa;
+    --danger-color: #c0392b;
+    --success-color: #27ae60;
+}
+
+/* --- MAIN LAYOUT STYLES --- */
+.mainContent {
+    flex: 1;
+    padding: 20px 5%;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f7f6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: var(--white-color);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* --- VIEW SWITCHER (TABS) STYLES --- */
+.viewSwitcher {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 30px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.viewSwitcher button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    color: #888;
+    position: relative;
+    top: 2px;
+    transition: color 0.3s, border-bottom-color 0.3s;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+}
+
+.viewSwitcher button.active {
+    color: var(--secondary-color);
+    border-bottom-color: var(--secondary-color);
+}
+
+.viewSwitcher button:hover {
+    color: #333;
+}
+
+/* --- FORM STYLES --- */
+.attendanceForm {
+    display: grid;
+    /* Adjusted grid to fit the new Course field comfortably */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.formGroup label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.formGroup input {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--white-color);
+}
+
+.formGroup input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.formGroup input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #555;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Time display spans full width on smaller grids */
+.timeDisplayGroup {
+    grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+    /* On larger screens, let time display take natural space if grid allows */
+    .timeDisplayGroup {
+        grid-column: auto; 
+    }
+}
+
+/* --- PERCENTAGE FILTER STYLES --- */
+.percentageFilterContainer {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #e9ecef;
+}
+
+.percentageFilterContainer label {
+    display: block;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.percentageSlider {
+    width: 100%;
+    cursor: pointer;
+}
+
+/* --- STUDENT LIST & TABLE --- */
+.studentList h2 {
+    text-align: center;
+    color: #333;
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.studentList table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.studentList th,
+.studentList td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.studentList th {
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.studentList tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.studentList tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.placeholderText {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.1em;
+    color: #777;
+    background-color: #fafafa;
+    border-radius: 5px;
+}
+
+/* --- SCROLL FOR RECORDS TABLE --- */
+.recordsTableContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.recordsTableContainer table {
+    min-width: 1500px;
+}
+
+/* --- CHECKBOX STYLES --- */
+.centerAlign {
+    text-align: center !important;
+}
+
+.attendanceCheckbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    transform: scale(1.3);
+}
+
+.headerCheckbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--white-color);
+    vertical-align: middle;
+    margin-left: 8px;
+}
+
+.statusBtn {
+    padding: 8px 12px;
+    background-color: var(--secondary-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s;
+    white-space: nowrap;
+}
+
+.statusBtn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.submitBtn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-top: 30px;
+    transition: background-color 0.3s;
+}
+
+.submitBtn:hover {
+    background-color: #0056b3;
+}
+
+.submitBtn:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+/* --- ATTENDANCE SUMMARY STYLES --- */
+.summaryContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.summaryBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-left: 5px solid transparent;
+}
+
+.summaryBox.total {
+    border-left-color: var(--secondary-color);
+}
+
+.summaryBox.present {
+    border-left-color: var(--success-color);
+}
+
+.summaryBox.absent {
+    border-left-color: var(--danger-color);
+}
+
+.summaryLabel {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.summaryValue {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #333;
+}
+
+.summaryBox.present .summaryValue {
+    color: var(--success-color);
+}
+
+.summaryBox.absent .summaryValue {
+    color: var(--danger-color);
+}
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 1024px) {
+    .mainContent { padding: 20px 3%; }
+    .container { padding: 25px; }
+}
+
+@media (max-width: 768px) {
+    .viewSwitcher button { font-size: 1em; }
+    .attendanceForm { gap: 20px; }
+    .recordsTableContainer { overflow-x: initial; }
+    .recordsTableContainer table { min-width: 100%; }
+
+    .studentList thead { display: none; }
+
+    .studentList tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .studentList tbody tr:nth-child(even) { background-color: var(--white-color); }
+
+    .studentList td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .studentList td:last-child { border-bottom: none; }
+
+    .studentList td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #333;
+        text-align: left;
+        padding-right: 15px;
+    }
+
+    .recordsTable td[data-label="Email"],
+    .recordsTable td[data-label="Mobile"] { word-break: break-all; }
+
+    .summaryContainer { grid-template-columns: 1fr; }
+    .summaryBox { flex-direction: row; justify-content: space-between; padding: 15px 25px; }
+}
+
+@media (max-width: 480px) {
+    .mainContent { padding: 15px 2%; }
+    .container { padding: 20px; }
+    .formGroup input, .customSelect__trigger { padding: 10px; font-size: 0.9rem; }
+    .submitBtn, .findBtn { padding: 12px; font-size: 1.1em; }
+    .studentList td { padding: 10px 12px; }
+    .viewSwitcher button { font-size: 0.9em; padding: 10px 12px; }
+}

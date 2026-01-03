@@ -1,0 +1,187 @@
+/* styles/AuthModals.module.css */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Darker dim for focus */
+    backdrop-filter: blur(3px); /* Modern blur effect */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modalContainer {
+    background: #fff;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+    font-family: 'Poppins', sans-serif;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.closeBtn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+    z-index: 10;
+}
+.closeBtn:hover { color: #333; }
+
+.content {
+    padding: 40px 30px;
+    text-align: center;
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    outline: none;
+    box-sizing: border-box; /* Important for padding */
+}
+
+.input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    font-size: 1rem;
+}
+
+.primaryBtn {
+    width: 100%;
+    padding: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.primaryBtn:hover {
+    background-color: #0056b3;
+}
+
+.primaryBtn:disabled {
+    background-color: #a0cfff;
+    cursor: not-allowed;
+}
+
+.secondaryLink {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.message {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 6px;
+}
+.error { background: #fee2e2; color: #dc2626; }
+.success { background: #d1fae5; color: #059669; }
+
+/* OTP Specific Styles */
+.otpContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.otpInput {
+    width: 45px;
+    height: 55px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.otpInput:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Help Modal Specifics */
+.instructionBox {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: left;
+    margin-bottom: 15px;
+    border-left: 4px solid #007bff;
+}
+
+.instructionTitle {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}

@@ -1,0 +1,470 @@
+/* /styles/Sudents.module.css */
+
+/* --- ROOT VARIABLES --- */
+:root {
+    --primary-color: #007bff;
+    --primary-hover-color: #0056b3;
+    --card-bg: #ffffff;
+    --page-bg: #f8f9fa;
+    --text-primary: #333333;
+    --text-secondary: #6c757d;
+    --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1);
+    --present-color: #28a745;
+    --absent-color: #dc3545;
+    --present-bg-light: rgba(40, 167, 69, 0.1);
+    --absent-bg-light: rgba(220, 53, 69, 0.1);
+    --border-color: #eaecf1;
+}
+
+/* --- Main Layout --- */
+.mainContainer {
+    padding: 20px;
+    max-width: 1400px; /* Increased slightly for large screens */
+    width: 100%;
+    margin: 0 auto;
+    background-color: var(--page-bg);
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* --- Page Header --- */
+.pageHeader {
+    background: var(--card-bg);
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap; /* Allows wrapping on tablets */
+}
+
+.headerTitleSection {
+    flex: 1;
+    min-width: 250px;
+}
+
+.headerTitleSection .title {
+    font-size: 1.8rem; /* Responsive base size */
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.headerTitleSection .subtitle {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.backLink:hover {
+    background-color: var(--primary-hover-color);
+    transform: translateY(-2px);
+}
+
+/* --- Generic Card Style --- */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: var(--shadow-light);
+    margin-bottom: 25px;
+    border-top: 4px solid var(--primary-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #444;
+}
+
+/* --- Filter Section (Grid Layout for better control) --- */
+.filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+.filters .formGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.filters label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.filters input {
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    width: 100%;
+    box-sizing: border-box; /* Crucial for responsiveness */
+    transition: border-color 0.2s;
+}
+
+.filters input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Buttons Container within Grid */
+.filterButtons {
+    display: flex;
+    gap: 10px;
+    min-width: 200px; /* Ensure buttons don't shrink too small */
+}
+
+.btn {
+    flex: 1;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btnPrimary { background-color: var(--primary-color); }
+.btnPrimary:hover { background-color: var(--primary-hover-color); }
+.btnSecondary { background-color: #6c757d; }
+.btnSecondary:hover { background-color: #5a6268; }
+
+/* --- Summary & Charts Layout --- */
+.attendanceSummaryLayout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* Summary gets slightly more space */
+    gap: 25px;
+    align-items: stretch;
+}
+
+/* --- Summary Card Content --- */
+.summaryCardContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 20px;
+    height: 100%;
+}
+
+.percentageDisplay {
+    text-align: center;
+    padding-right: 20px;
+    border-right: 2px solid var(--border-color);
+    min-width: 120px;
+}
+
+.percentageDisplay .value {
+    font-size: 3.5rem; /* Scalable font */
+    font-weight: 800;
+    color: var(--primary-color);
+    line-height: 1;
+    display: block;
+}
+
+.percentageDisplay .label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    display: block;
+}
+
+.statsBreakdown {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+}
+
+.statItem {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #f8f9fa; /* Slight bg for items */
+}
+
+.statItem svg {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.statItem .text {
+    display: flex;
+    flex-direction: column;
+}
+
+.statItem .text .label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+
+.statItem .text .value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.present { color: var(--present-color); background-color: var(--present-bg-light); }
+.absent { color: var(--absent-color); background-color: var(--absent-bg-light); }
+
+/* --- Pie Chart --- */
+.pieChartContainer {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Table Styles --- */
+.tableContainer {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* Ensures table doesn't squash on medium screens before breaking */
+}
+
+.table th,
+.table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table th {
+    background-color: #fafbfc;
+    font-weight: 700;
+    color: #444;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: white;
+    font-size: 0.85rem;
+    text-align: center;
+}
+.statusPresent { background-color: var(--present-color); }
+.statusAbsent { background-color: var(--absent-color); }
+
+
+/* =========================================
+   RESPONSIVE MEDIA QUERIES
+   ========================================= */
+
+/* --- Laptop & Small Desktop (max-width: 1200px) --- */
+@media (max-width: 1200px) {
+    .headerTitleSection .title {
+        font-size: 1.6rem;
+    }
+    .percentageDisplay .value {
+        font-size: 3rem;
+    }
+}
+
+/* --- Tablets (max-width: 992px) --- */
+@media (max-width: 992px) {
+    .attendanceSummaryLayout {
+        grid-template-columns: 1fr; /* Stack Summary and Pie Chart */
+    }
+    
+    .pieChartContainer {
+        height: 250px; /* Reduce height slightly when stacked */
+    }
+    
+    .filters {
+        grid-template-columns: 1fr 1fr; /* 2 columns for filters */
+    }
+    
+    /* Make the button container span full width if needed */
+    .filterButtons {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+/* --- Large Mobile / Small Tablet (max-width: 768px) --- */
+@media (max-width: 768px) {
+    .mainContainer {
+        padding: 15px;
+    }
+
+    .pageHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .headerTitleSection {
+        width: 100%;
+    }
+
+    .backLink {
+        width: 100%; /* Full width button on mobile */
+    }
+
+    .summaryCardContent {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .percentageDisplay {
+        border-right: none;
+        border-bottom: 2px solid var(--border-color);
+        padding: 0 0 20px 0;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .statsBreakdown {
+        width: 100%;
+    }
+
+    /* --- Mobile Card View for Table --- */
+    .tableContainer {
+        overflow-x: visible; /* Disable scroll for card view */
+    }
+
+    .table {
+        min-width: 0; /* Allow table to shrink */
+        display: block;
+    }
+
+    .table thead {
+        display: none; /* Hide headers */
+    }
+
+    .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        margin-bottom: 20px;
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+
+    .table td {
+        display: flex;
+        width: 85vw;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 12px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.95rem;
+    }
+
+    .table td:last-child {
+        border-bottom: none;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: #555;
+        text-align: left;
+        margin-right: 15px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .statusBadge {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+    }
+}
+
+/* --- Small Mobile (max-width: 480px) --- */
+@media (max-width: 480px) {
+    .headerTitleSection .title {
+        font-size: 1.4rem;
+    }
+
+   .table td {
+        justify-content: start;
+    }
+
+    .filters {
+        grid-template-columns: 1fr; /* 1 column for filters */
+    }
+
+    .filterButtons {
+        flex-direction: column; /* Stack buttons */
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .percentageDisplay .value {
+        font-size: 2.5rem;
+    }
+    
+    .statItem .text .value {
+        font-size: 1.1rem;
+    }
+
+    .card {
+        padding: 15px;
+    }
+}
