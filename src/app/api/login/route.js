@@ -10,27 +10,35 @@ export async function POST(req) {
     await dbConnect();
     const { email, password, role } = await req.json();
 
+    console.log(`[Login Attempt] Email: ${email}, Role: ${role}`);
+
     let user;
     if (role === 'Student') {
-      console.log("student Email :- "+email)
-      user = await Student.findOne({ 
-        $or: [{ email: email }, { enrollmentNo: email }] 
+      console.log("Searching for Student...");
+      user = await Student.findOne({
+        $or: [{ email: email }, { enrollmentNo: email }]
       });
     } else {
+      console.log("Searching for User (Admin/Teacher)...");
       user = await User.findOne({ email, role });
     }
 
     if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 401 });
+      console.log("[Login Failed] User not found or Role mismatch");
+      // Use a distinct message for debugging on frontend
+      return NextResponse.json({ message: `User not found with role: ${role}` }, { status: 404 });
     }
 
+    console.log(`[Login Found] User: ${user.name}, checking password...`);
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
+      console.log("[Login Failed] Password mismatch");
+      return NextResponse.json({ message: 'Invalid password' }, { status: 401 });
     }
+    console.log("[Login Success]");
 
     // 7 Days Expiration
-    const expiresIn = '7d'; 
+    const expiresIn = '7d';
     const expirationMs = 7 * 24 * 60 * 60 * 1000;
 
     const token = jwt.sign(
@@ -40,22 +48,22 @@ export async function POST(req) {
     );
 
     const cookieStore = await cookies();
-    cookieStore.set('token', token, { 
-      httpOnly: true, 
+    cookieStore.set('token', token, {
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: expirationMs / 1000, // maxAge is in seconds
       path: '/'
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      user: { 
+    return NextResponse.json({
+      success: true,
+      user: {
         id: user._id,
-        name: user.name, 
-        email: user.email, 
-        role: role, 
-        college: user.college 
-      } 
+        name: user.name,
+        email: user.email,
+        role: role,
+        college: user.college
+      }
     });
 
   } catch (error) {

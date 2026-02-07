@@ -6,7 +6,6 @@ export default function ForgotPasswordFlow({ onClose }) {
     const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Pass
     const [email, setEmail] = useState('');
     const [role, setRole] = useState('Student');
-    
     // OTP State
     const [otp, setOtp] = useState(new Array(6).fill(""));
     const otpRefs = useRef([]);
@@ -14,7 +13,6 @@ export default function ForgotPasswordFlow({ onClose }) {
     const [pass, setPass] = useState({ new: '', confirm: '' });
     const [msg, setMsg] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
-    
     // Resend State
     const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -29,7 +27,7 @@ export default function ForgotPasswordFlow({ onClose }) {
 
     // --- API Helper ---
     const sendOtpApi = async () => {
-        const res = await fetch('/attendance/api/auth/send-otp', {
+        const res = await fetch('/api/auth/send-otp', {
             method: 'POST',
             body: JSON.stringify({ email, role })
         });
@@ -61,7 +59,6 @@ export default function ForgotPasswordFlow({ onClose }) {
     const handleResend = async () => {
         if (resendCooldown > 0) return;
         setLoading(true); setMsg({ type: '', text: 'Resending OTP...' });
-        
         try {
             const data = await sendOtpApi();
             if (data.success) {
@@ -101,7 +98,7 @@ export default function ForgotPasswordFlow({ onClose }) {
         setLoading(true); setMsg({ type: '', text: '' });
 
         try {
-            const res = await fetch('/attendance/api/auth/verify-otp', {
+            const res = await fetch('/api/auth/verify-otp', {
                 method: 'POST',
                 body: JSON.stringify({ email, role, otp: otpCode })
             });
@@ -124,12 +121,11 @@ export default function ForgotPasswordFlow({ onClose }) {
     const handleReset = async (e) => {
         e.preventDefault();
         if (pass.new !== pass.confirm) return setMsg({ type: 'error', text: "Passwords don't match" });
-        
         setLoading(true);
         const otpCode = otp.join("");
 
         try {
-            const res = await fetch('/attendance/api/auth/reset-with-otp', {
+            const res = await fetch('/api/auth/reset-with-otp', {
                 method: 'POST',
                 body: JSON.stringify({ email, role, otp: otpCode, password: pass.new })
             });
@@ -152,7 +148,6 @@ export default function ForgotPasswordFlow({ onClose }) {
             <div className={styles.modalContainer}>
                 <button onClick={onClose} className={styles.closeBtn}>&times;</button>
                 <div className={styles.content}>
-                    
                     {/* STEP 1: Email Input */}
                     {step === 1 && (
                         <>
@@ -161,18 +156,18 @@ export default function ForgotPasswordFlow({ onClose }) {
                             <form onSubmit={handleSendOtp}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>Role</label>
-                                    <select value={role} onChange={e=>setRole(e.target.value)} className={styles.select}>
+                                    <select value={role} onChange={e => setRole(e.target.value)} className={styles.select}>
                                         <option value="Student">Student</option>
                                         <option value="Teacher">Teacher</option>
                                     </select>
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>Registered Email</label>
-                                    <input 
-                                        type="email" 
-                                        className={styles.input} 
+                                    <input
+                                        type="email"
+                                        className={styles.input}
                                         value={email}
-                                        onChange={e=>setEmail(e.target.value)}
+                                        onChange={e => setEmail(e.target.value)}
                                         required
                                     />
                                 </div>
@@ -189,7 +184,6 @@ export default function ForgotPasswordFlow({ onClose }) {
                         <>
                             <h2 className={styles.title}>Enter OTP</h2>
                             <p className={styles.subtitle}>Code sent to <strong>{email}</strong></p>
-                            
                             <form onSubmit={handleVerifyOtp}>
                                 <div className={styles.otpContainer}>
                                     {otp.map((data, index) => (
@@ -202,7 +196,7 @@ export default function ForgotPasswordFlow({ onClose }) {
                                             ref={el => otpRefs.current[index] = el}
                                             onChange={e => handleOtpChange(e.target, index)}
                                             onKeyDown={e => {
-                                                if (e.key === "Backspace" && !otp[index] && index > 0) 
+                                                if (e.key === "Backspace" && !otp[index] && index > 0)
                                                     otpRefs.current[index - 1].focus();
                                             }}
                                         />
@@ -210,7 +204,6 @@ export default function ForgotPasswordFlow({ onClose }) {
                                 </div>
 
                                 {msg.text && <div className={`${styles.message} ${styles[msg.type]}`}>{msg.text}</div>}
-                                
                                 <button type="submit" className={styles.primaryBtn} disabled={loading}>
                                     {loading ? 'Verifying...' : 'Verify OTP'}
                                 </button>
@@ -218,9 +211,9 @@ export default function ForgotPasswordFlow({ onClose }) {
                                 {/* Resend Logic */}
                                 <div style={{ marginTop: '20px' }}>
                                     <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '5px' }}>Didn&apos;t receive code?</p>
-                                    <button 
-                                        type="button" 
-                                        onClick={handleResend} 
+                                    <button
+                                        type="button"
+                                        onClick={handleResend}
                                         className={styles.secondaryLink}
                                         style={{ marginTop: 0, opacity: resendCooldown > 0 ? 0.5 : 1 }}
                                         disabled={resendCooldown > 0 || loading}
@@ -239,22 +232,22 @@ export default function ForgotPasswordFlow({ onClose }) {
                             <form onSubmit={handleReset}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>New Password</label>
-                                    <input 
-                                        type="password" 
-                                        className={styles.input} 
-                                        value={pass.new} 
-                                        onChange={e=>setPass({...pass, new:e.target.value})}
-                                        required 
+                                    <input
+                                        type="password"
+                                        className={styles.input}
+                                        value={pass.new}
+                                        onChange={e => setPass({ ...pass, new: e.target.value })}
+                                        required
                                     />
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>Confirm Password</label>
-                                    <input 
-                                        type="password" 
-                                        className={styles.input} 
-                                        value={pass.confirm} 
-                                        onChange={e=>setPass({...pass, confirm:e.target.value})}
-                                        required 
+                                    <input
+                                        type="password"
+                                        className={styles.input}
+                                        value={pass.confirm}
+                                        onChange={e => setPass({ ...pass, confirm: e.target.value })}
+                                        required
                                     />
                                 </div>
                                 {msg.text && <div className={`${styles.message} ${styles[msg.type]}`}>{msg.text}</div>}

@@ -12,7 +12,6 @@ export default function Home() {
     const [role, setRole] = useState('Teacher');
     const [isOptionsOpen, setIsOptionsOpen] = useState(false);
     const [error, setError] = useState(false);
-    
     // --- NEW: Loading State ---
     const [isLoading, setIsLoading] = useState(false);
 
@@ -41,7 +40,7 @@ export default function Home() {
         setIsLoading(true); // 1. Start Loading
 
         try {
-            const res = await fetch('/attendance/api/login', {
+            const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, role }),
@@ -49,35 +48,36 @@ export default function Home() {
 
             if (res.ok) {
                 const data = await res.json();
-                
-                console.log("DATA :- ",data)
+
+                console.log("DATA :- ", data)
 
                 // Store user details in localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
-                
+
                 // Redirect Logic
                 if (role === 'Admin') {
                     router.push('/admin');
-                } 
+                }
                 else if (role === 'Student') {
-                    router.push(`/student/${data.user.id}`); 
-                } 
+                    router.push(`/student/${data.user.id}`);
+                }
                 else {
                     router.push('/attendance');
                 }
-                
+
                 // Note: We don't set isLoading(false) here to prevent the button 
                 // flashing back to "Login" while the page is redirecting.
 
             } else {
                 // 2. Stop Loading on API Error
-                setError(true);
+                const errorData = await res.json();
+                setError(errorData.message || "Login failed");
                 setIsLoading(false);
             }
         } catch (err) {
             console.error(err);
             // 3. Stop Loading on Network Error
-            setError(true);
+            setError("Network or Server connection error");
             setIsLoading(false);
         }
     };
@@ -126,38 +126,38 @@ export default function Home() {
                             <label htmlFor="email">
                                 {role === 'Student' ? 'Enrollment No / Email' : 'Email Address'}
                             </label>
-                            <input 
-                                type="text" 
-                                id="email" 
-                                placeholder={role === 'Student' ? "Enter Enrollment or Email" : "Enter your email"} 
-                                value={email} 
-                                onChange={(e) => setEmail(e.target.value)} 
-                                required 
+                            <input
+                                type="text"
+                                id="email"
+                                placeholder={role === 'Student' ? "Enter Enrollment or Email" : "Enter your email"}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
                             />
                         </div>
                         <div className={styles.formGroup}>
                             <label htmlFor="password">Password</label>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                placeholder="Enter your password" 
-                                value={password} 
-                                onChange={(e) => setPassword(e.target.value)} 
-                                required 
+                            <input
+                                type="password"
+                                id="password"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
                             />
                         </div>
 
                         {/* --- Forgot Password Link --- */}
-                        <div style={{textAlign:'right', marginBottom:'15px'}}>
-                            <button 
-                                type="button" 
+                        <div style={{ textAlign: 'right', marginBottom: '15px' }}>
+                            <button
+                                type="button"
                                 onClick={() => setShowForgotModal(true)}
                                 style={{
-                                    background: 'none', 
-                                    border: 'none', 
-                                    color: '#007bff', 
-                                    fontSize: '0.9rem', 
-                                    cursor: 'pointer', 
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#007bff',
+                                    fontSize: '0.9rem',
+                                    cursor: 'pointer',
                                     textDecoration: 'underline',
                                     padding: 0,
                                     fontFamily: 'inherit'
@@ -168,19 +168,19 @@ export default function Home() {
                         </div>
 
                         {/* --- Login Button with Loading State --- */}
-                        <button 
-                            type="submit" 
-                            className={styles.loginBtn} 
+                        <button
+                            type="submit"
+                            className={styles.loginBtn}
                             disabled={isLoading}
-                            style={{ 
-                                opacity: isLoading ? 0.7 : 1, 
-                                cursor: isLoading ? 'not-allowed' : 'pointer' 
+                            style={{
+                                opacity: isLoading ? 0.7 : 1,
+                                cursor: isLoading ? 'not-allowed' : 'pointer'
                             }}
                         >
                             {isLoading ? 'Logging in...' : 'Login'}
                         </button>
 
-                        {error && <p className={styles.errorMessage}>Invalid credentials or server error.</p>}
+                        {error && <p className={styles.errorMessage}>{error}</p>}
                     </form>
                 </div>
             </div>

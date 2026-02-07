@@ -34,12 +34,12 @@ function AttendanceContent() {
     const [selectedCourse, setSelectedCourse] = useState(searchParams.get('course') || '');
     const [selectedSemester, setSelectedSemester] = useState(searchParams.get('semester') || '');
     const [selectedClass, setSelectedClass] = useState(searchParams.get('class') || '');
-    
+
     // Subject for Taking Attendance
     const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') || '');
     // Subject for Viewing Records (New State)
-    const [selectedRecordSubject, setSelectedRecordSubject] = useState(''); 
-    
+    const [selectedRecordSubject, setSelectedRecordSubject] = useState('');
+
     const [hierarchy, setHierarchy] = useState({ colleges: [], courses: [], classes: [] });
     const [students, setStudents] = useState([]);
     const [attendance, setAttendance] = useState({});
@@ -50,12 +50,12 @@ function AttendanceContent() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const storedUser = localStorage.getItem('user'); 
+                const storedUser = localStorage.getItem('user');
                 if (storedUser) {
                     const parsed = JSON.parse(storedUser);
                     setTeacherName(parsed.name || 'Unknown Teacher');
                 } else {
-                    const res = await fetch('/attendance/api/auth/me'); 
+                    const res = await fetch('/api/auth/me');
                     if (res.ok) {
                         const data = await res.json();
                         setTeacherName(data.name);
@@ -67,7 +67,7 @@ function AttendanceContent() {
     }, []);
 
     useEffect(() => {
-        fetch('/attendance/api/attendance?hierarchy=true')
+        fetch('/api/attendance?hierarchy=true')
             .then(res => res.json())
             .then(data => setHierarchy(data));
     }, []);
@@ -76,7 +76,6 @@ function AttendanceContent() {
     const courseOptions = hierarchy.courses.filter(c => c.parentName === selectedCollege).map(c => ({ value: c.name, label: c.name }));
     const semesterOptions = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5", "Semester 6", "Semester 7", "Semester 8"].map(y => ({ value: y, label: y }));
     const classOptions = hierarchy.classes.filter(c => c.parentName === selectedCourse && c.details?.semester === selectedSemester).map(c => ({ value: c.name, label: c.name }));
-    
     // Dynamic Subject Options Logic
     const currentCourse = hierarchy.courses.find(c => c.name === selectedCourse);
     let availableSubjects = [];
@@ -94,7 +93,7 @@ function AttendanceContent() {
     const handleTimeSlotChange = (val) => {
         setSelectedTimeSlot(val);
         const slot = TIME_SLOTS.find(s => s.label === val);
-        if (slot && val !== 'Other') { setStartTime(slot.start); setEndTime(slot.end); } 
+        if (slot && val !== 'Other') { setStartTime(slot.start); setEndTime(slot.end); }
         else { setStartTime(''); setEndTime(''); }
     };
 
@@ -102,9 +101,9 @@ function AttendanceContent() {
     useEffect(() => {
         if (selectedCollege && selectedCourse && selectedSemester && selectedClass) {
             let query = `college=${selectedCollege}&course=${selectedCourse}&semester=${selectedSemester}&class=${selectedClass}`;
-            
+
             if (activeView === 'takeAttendance') {
-                fetch(`/attendance/api/attendance?view=students&${query}`)
+                fetch(`/api/attendance?view=students&${query}`)
                     .then(res => res.json())
                     .then(data => {
                         setStudents(data);
@@ -117,13 +116,13 @@ function AttendanceContent() {
                 if (selectedRecordSubject) {
                     query += `&subject=${encodeURIComponent(selectedRecordSubject)}`;
                 }
-                
+
                 setIsLoadingRecords(true);
-                fetch(`/attendance/api/attendance?view=records&${query}`)
+                fetch(`/api/attendance?view=records&${query}`)
                     .then(res => res.json())
                     .then(data => {
-                         setFilteredRecordStudents(data.filter(s => s.attendancePercentage <= percentageFilter));
-                         setIsLoadingRecords(false);
+                        setFilteredRecordStudents(data.filter(s => s.attendancePercentage <= percentageFilter));
+                        setIsLoadingRecords(false);
                     })
                     .catch(() => setIsLoadingRecords(false));
             }
@@ -138,7 +137,7 @@ function AttendanceContent() {
         const params = new URLSearchParams();
         if (selectedCollege) params.set('college', selectedCollege);
         if (selectedCourse) params.set('course', selectedCourse);
-        if (selectedSemester) params.set('semester', selectedSemester); 
+        if (selectedSemester) params.set('semester', selectedSemester);
         if (selectedClass) params.set('class', selectedClass);
         params.set('view', activeView);
         router.replace(`/attendance?${params.toString()}`, { scroll: false });
@@ -173,15 +172,15 @@ function AttendanceContent() {
                 subject: selectedSubject,
                 college: selectedCollege,
                 course: selectedCourse,
-                semester: selectedSemester, 
+                semester: selectedSemester,
                 cls: selectedClass,
                 recordedBy: teacherName,
-                students: students 
+                students: students
             }
         };
 
         try {
-            const res = await fetch('/attendance/api/attendance', { method: 'POST', body: JSON.stringify(payload) });
+            const res = await fetch('/api/attendance', { method: 'POST', body: JSON.stringify(payload) });
             const responseData = await res.json();
             if (res.ok) alert('Attendance Submitted Successfully!');
             else alert(responseData.error || 'Failed to submit attendance');
@@ -205,66 +204,66 @@ function AttendanceContent() {
                 </div>
 
                 <div className={styles.attendanceForm}>
-                    <div className={styles.formGroup}><label>College/School <span style={{color:'red'}}>*</span></label><CustomSelect options={collegeOptions} selectedValue={selectedCollege} onChange={setSelectedCollege} placeholder="Select College" /></div>
-                    <div className={styles.formGroup}><label>Course <span style={{color:'red'}}>*</span></label><CustomSelect options={courseOptions} selectedValue={selectedCourse} onChange={setSelectedCourse} placeholder="Select Course" disabled={!selectedCollege} /></div>
-                    <div className={styles.formGroup}><label>Semester <span style={{color:'red'}}>*</span></label><CustomSelect options={semesterOptions} selectedValue={selectedSemester} onChange={setSelectedSemester} placeholder="Select Semester" disabled={!selectedCourse} /></div>
-                    <div className={styles.formGroup}><label>Class <span style={{color:'red'}}>*</span></label><CustomSelect options={classOptions} selectedValue={selectedClass} onChange={setSelectedClass} placeholder="Select Class" disabled={!selectedSemester} /></div>
+                    <div className={styles.formGroup}><label>College/School <span style={{ color: 'red' }}>*</span></label><CustomSelect options={collegeOptions} selectedValue={selectedCollege} onChange={setSelectedCollege} placeholder="Select College" /></div>
+                    <div className={styles.formGroup}><label>Course <span style={{ color: 'red' }}>*</span></label><CustomSelect options={courseOptions} selectedValue={selectedCourse} onChange={setSelectedCourse} placeholder="Select Course" disabled={!selectedCollege} /></div>
+                    <div className={styles.formGroup}><label>Semester <span style={{ color: 'red' }}>*</span></label><CustomSelect options={semesterOptions} selectedValue={selectedSemester} onChange={setSelectedSemester} placeholder="Select Semester" disabled={!selectedCourse} /></div>
+                    <div className={styles.formGroup}><label>Class <span style={{ color: 'red' }}>*</span></label><CustomSelect options={classOptions} selectedValue={selectedClass} onChange={setSelectedClass} placeholder="Select Class" disabled={!selectedSemester} /></div>
 
-                    {activeView === 'takeAttendance' && ( <>
-                        <div className={styles.formGroup}><label>Subject <span style={{color:'red'}}>*</span></label><CustomSelect options={subjectOptions} selectedValue={selectedSubject} onChange={setSelectedSubject} placeholder="Select Subject" disabled={!selectedClass} /></div>
-                        <div className={styles.formGroup}><label>Date <span style={{color:'red'}}>*</span></label><input type="date" value={attendanceDate} onChange={e => setAttendanceDate(e.target.value)} /></div>
-                        <div className={styles.formGroup}><label>Time Slot <span style={{color:'red'}}>*</span></label><CustomSelect options={timeSlotOptions} selectedValue={selectedTimeSlot} onChange={handleTimeSlotChange} placeholder="Select Time" /></div>
-                        {selectedTimeSlot === 'Other' && ( <><div className={styles.formGroup}><label>Start Time <span style={{color:'red'}}>*</span></label><input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} /></div><div className={styles.formGroup}><label>End Time <span style={{color:'red'}}>*</span></label><input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} /></div></>)}
+                    {activeView === 'takeAttendance' && (<>
+                        <div className={styles.formGroup}><label>Subject <span style={{ color: 'red' }}>*</span></label><CustomSelect options={subjectOptions} selectedValue={selectedSubject} onChange={setSelectedSubject} placeholder="Select Subject" disabled={!selectedClass} /></div>
+                        <div className={styles.formGroup}><label>Date <span style={{ color: 'red' }}>*</span></label><input type="date" value={attendanceDate} onChange={e => setAttendanceDate(e.target.value)} /></div>
+                        <div className={styles.formGroup}><label>Time Slot <span style={{ color: 'red' }}>*</span></label><CustomSelect options={timeSlotOptions} selectedValue={selectedTimeSlot} onChange={handleTimeSlotChange} placeholder="Select Time" /></div>
+                        {selectedTimeSlot === 'Other' && (<><div className={styles.formGroup}><label>Start Time <span style={{ color: 'red' }}>*</span></label><input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} /></div><div className={styles.formGroup}><label>End Time <span style={{ color: 'red' }}>*</span></label><input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} /></div></>)}
                     </>)}
 
                     {/* NEW: Subject Selector for View Records */}
                     {activeView === 'viewRecords' && (
                         <div className={styles.formGroup}>
                             <label>Subject (Optional)</label>
-                            <CustomSelect 
-                                options={subjectOptions} 
-                                selectedValue={selectedRecordSubject} 
-                                onChange={setSelectedRecordSubject} 
-                                placeholder="All Subjects" 
-                                disabled={!selectedClass} 
+                            <CustomSelect
+                                options={subjectOptions}
+                                selectedValue={selectedRecordSubject}
+                                onChange={setSelectedRecordSubject}
+                                placeholder="All Subjects"
+                                disabled={!selectedClass}
                             />
                         </div>
                     )}
                 </div>
 
-                {activeView === 'takeAttendance' && ( <>
-                    {students.length > 0 && ( 
-                    <div className={styles.studentList}>
-                        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                            <h2>Mark Today&apos;s Attendance</h2>
-                            {teacherName && <span style={{fontSize:'0.9rem', color:'#666'}}>Teacher: <strong>{teacherName}</strong></span>}
+                {activeView === 'takeAttendance' && (<>
+                    {students.length > 0 && (
+                        <div className={styles.studentList}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h2>Mark Today&apos;s Attendance</h2>
+                                {teacherName && <span style={{ fontSize: '0.9rem', color: '#666' }}>Teacher: <strong>{teacherName}</strong></span>}
+                            </div>
+                            <table>
+                                <thead><tr><th>Enrollment No.</th><th>Student Name</th><th className={styles.centerAlign}><span>Select All</span><input type="checkbox" className={styles.headerCheckbox} checked={areAllSelected(students, attendance)} onChange={handleSelectAll} /></th></tr></thead>
+                                <tbody>
+                                    {students.map(student => (<tr key={student.enrollmentNo}><td data-label="Enrollment No.">{student.enrollmentNo}</td><td data-label="Student Name">{student.name}</td><td data-label="Attendance" className={styles.centerAlign}><input type="checkbox" className={styles.attendanceCheckbox} checked={attendance[student.enrollmentNo] === 'P'} onChange={(e) => handleCheckboxChange(student.enrollmentNo, e.target.checked)} /></td></tr>))}
+                                </tbody>
+                            </table>
+                            {(() => { const { total, present, absent } = getSummaryCounts(students, attendance); return (<div className={styles.summaryContainer}><div className={`${styles.summaryBox} ${styles.total}`}><span className={styles.summaryLabel}>Total Students</span><span className={styles.summaryValue}>{total}</span></div><div className={`${styles.summaryBox} ${styles.present}`}><span className={styles.summaryLabel}>Present</span><span className={styles.summaryValue}>{present}</span></div><div className={`${styles.summaryBox} ${styles.absent}`}><span className={styles.summaryLabel}>Absent</span><span className={styles.summaryValue}>{absent}</span></div></div>); })()}
                         </div>
-                        <table>
-                            <thead><tr><th>Enrollment No.</th><th>Student Name</th><th className={styles.centerAlign}><span>Select All</span><input type="checkbox" className={styles.headerCheckbox} checked={areAllSelected(students, attendance)} onChange={handleSelectAll} /></th></tr></thead>
-                            <tbody>
-                                {students.map(student => ( <tr key={student.enrollmentNo}><td data-label="Enrollment No.">{student.enrollmentNo}</td><td data-label="Student Name">{student.name}</td><td data-label="Attendance" className={styles.centerAlign}><input type="checkbox" className={styles.attendanceCheckbox} checked={attendance[student.enrollmentNo] === 'P'} onChange={(e) => handleCheckboxChange(student.enrollmentNo, e.target.checked)} /></td></tr> ))}
-                            </tbody>
-                        </table>
-                        {(() => { const { total, present, absent } = getSummaryCounts(students, attendance); return ( <div className={styles.summaryContainer}><div className={`${styles.summaryBox} ${styles.total}`}><span className={styles.summaryLabel}>Total Students</span><span className={styles.summaryValue}>{total}</span></div><div className={`${styles.summaryBox} ${styles.present}`}><span className={styles.summaryLabel}>Present</span><span className={styles.summaryValue}>{present}</span></div><div className={`${styles.summaryBox} ${styles.absent}`}><span className={styles.summaryLabel}>Absent</span><span className={styles.summaryValue}>{absent}</span></div></div> ); })()}
-                    </div> 
                     )}
                     <button className={styles.submitBtn} onClick={handleSubmit} disabled={students.length === 0}>Submit Attendance</button>
                 </>)}
 
-                {activeView === 'viewRecords' && ( <>
+                {activeView === 'viewRecords' && (<>
                     <div className={styles.percentageFilterContainer}><label htmlFor="percentageFilter">Show students below or equal to: <strong>{percentageFilter}%</strong></label><input type="range" id="percentageFilter" min="0" max="100" value={percentageFilter} onChange={e => setPercentageFilter(e.target.value)} className={styles.percentageSlider} /></div>
-                    {isLoadingRecords ? ( <div style={{textAlign: 'center', padding: '20px', fontSize: '1.2rem', color: '#007bff'}}>Loading Records...</div> ) : (
+                    {isLoadingRecords ? (<div style={{ textAlign: 'center', padding: '20px', fontSize: '1.2rem', color: '#007bff' }}>Loading Records...</div>) : (
                         <div className={`${styles.studentList} ${styles.recordsTable}`}><h2>Student Attendance Records {selectedRecordSubject && `(${selectedRecordSubject})`}</h2>
-                            {selectedClass ? ( 
+                            {selectedClass ? (
                                 <div className={styles.recordsTableContainer}>
                                     <table>
                                         <thead><tr><th>Enrollment No.</th><th>Name</th><th>Course</th><th>Semester</th><th>Class</th><th>Attd. %</th><th>Mobile</th><th>Email</th><th>View Details</th></tr></thead>
                                         <tbody>
-                                            {filteredRecordStudents.length > 0 ? filteredRecordStudents.map(student => ( <tr key={student.enrollmentNo}><td data-label="Enrollment No.">{student.enrollmentNo}</td><td data-label="Name">{student.name}</td><td data-label="Course">{student.course}</td><td data-label="Semester">{student.semester}</td><td data-label="Class">{student.class}</td><td data-label="Attd. %" style={{fontWeight: 'bold', color: student.attendancePercentage < 50 ? '#c0392b' : '#27ae60' }}>{student.attendancePercentage}%</td><td data-label="Mobile">{student.mobile}</td><td data-label="Email">{student.email}</td><td data-label="View Details"><Link href={`/student/${student._id}`}><button className={styles.statusBtn}>View Details</button></Link></td></tr> )) : ( <tr><td colSpan="9" className={styles.placeholderText}>No students found.</td></tr> )}
+                                            {filteredRecordStudents.length > 0 ? filteredRecordStudents.map(student => (<tr key={student.enrollmentNo}><td data-label="Enrollment No.">{student.enrollmentNo}</td><td data-label="Name">{student.name}</td><td data-label="Course">{student.course}</td><td data-label="Semester">{student.semester}</td><td data-label="Class">{student.class}</td><td data-label="Attd. %" style={{ fontWeight: 'bold', color: student.attendancePercentage < 50 ? '#c0392b' : '#27ae60' }}>{student.attendancePercentage}%</td><td data-label="Mobile">{student.mobile}</td><td data-label="Email">{student.email}</td><td data-label="View Details"><Link href={`/student/${student._id}`}><button className={styles.statusBtn}>View Details</button></Link></td></tr>)) : (<tr><td colSpan="9" className={styles.placeholderText}>No students found.</td></tr>)}
                                         </tbody>
                                     </table>
                                 </div>
-                            ) : ( <p className={styles.placeholderText}>Please select College, Course, Semester and Class to view records.</p> )}
+                            ) : (<p className={styles.placeholderText}>Please select College, Course, Semester and Class to view records.</p>)}
                         </div>
                     )}
                 </>)}
@@ -276,7 +275,7 @@ function AttendanceContent() {
 // This is the new wrapper component that fixes the build error
 export default function AttendancePage() {
     return (
-        <Suspense fallback={<div style={{textAlign:'center', padding:'2rem'}}>Loading Attendance Module...</div>}>
+        <Suspense fallback={<div style={{ textAlign: 'center', padding: '2rem' }}>Loading Attendance Module...</div>}>
             <AttendanceContent />
         </Suspense>
     );

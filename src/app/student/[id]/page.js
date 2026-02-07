@@ -7,33 +7,33 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faFilter, faChartLine, faPieChart, faHistory, faCheckCircle, faTimesCircle, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import styles from '../../../styles/Sudents.module.css';
-import CustomSelect from '../../../components/Select'; 
+import CustomSelect from '../../../components/Select';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function StudentAttendancePage({ params }) {
     const router = useRouter();
-    const unwrappedParams = use(params); 
+    const unwrappedParams = use(params);
     const id = unwrappedParams.id;
 
-   
+
 
     const [studentInfo, setStudentInfo] = useState({ enrollmentNo: "", name: 'Loading...', course: '', year: '', semester: '' });
     const [records, setRecords] = useState([]);
     const [availableSubjects, setAvailableSubjects] = useState([]); // NEW: State for subjects from DB
-    
+
     useEffect(() => {
-        fetch(`/attendance/api/student/${id}`)
+        fetch(`/api/student/${id}`)
             .then(res => res.json())
             .then(data => {
-                if(data.student) setStudentInfo(data.student);
-                if(data.records) setRecords(data.records);
-                if(data.subjects) setAvailableSubjects(data.subjects); // Store fetched subjects
+                if (data.student) setStudentInfo(data.student);
+                if (data.records) setRecords(data.records);
+                if (data.subjects) setAvailableSubjects(data.subjects); // Store fetched subjects
             })
             .catch(err => {
 
-                setStudentInfo(prev => ({...prev, name: 'Student Not Found'}));
-                
+                setStudentInfo(prev => ({ ...prev, name: 'Student Not Found' }));
+
             });
     }, [id]);
 
@@ -55,8 +55,8 @@ export default function StudentAttendancePage({ params }) {
 
     const filteredData = useMemo(() => {
         if (!isFiltered) return records;
-        return records.filter(record => 
-            (!startDate || record.date >= startDate) && 
+        return records.filter(record =>
+            (!startDate || record.date >= startDate) &&
             (!endDate || record.date <= endDate) &&
             (!selectedSubject || record.subject === selectedSubject)
         );
@@ -69,7 +69,6 @@ export default function StudentAttendancePage({ params }) {
         const percent = total > 0 ? ((present / total) * 100).toFixed(1) : 0;
         return { presentCount: present, absentCount: absent, totalCount: total, percentage: percent };
     }, [filteredData]);
-    
     const pieChartData = useMemo(() => ({
         labels: ['Present', 'Absent'],
         datasets: [{
@@ -93,14 +92,13 @@ export default function StudentAttendancePage({ params }) {
             if (!time24) return '';
             let [hours, minutes] = time24.split(':');
             const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12; 
+            hours = hours % 12 || 12;
             return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
         };
         return `${format12Hour(startTime)} to ${format12Hour(endTime)}`;
     };
 
     const handleFilter = () => setIsFiltered(true);
-    
     const handleReset = () => {
         setStartDate('');
         setEndDate('');
@@ -123,19 +121,18 @@ export default function StudentAttendancePage({ params }) {
             <div className={styles.card}>
                 <h2><FontAwesomeIcon icon={faFilter} /> Filter Records</h2>
                 <div className={styles.filters}>
-                    <div className={styles.formGroup} style={{zIndex: 20}}>
+                    <div className={styles.formGroup} style={{ zIndex: 20 }}>
                         <label>Subject</label>
-                        <CustomSelect 
-                            selectedValue={selectedSubject} 
-                            onChange={(val) => setSelectedSubject(val)} 
-                            options={subjectOptions} 
-                            placeholder="All Subjects" 
+                        <CustomSelect
+                            selectedValue={selectedSubject}
+                            onChange={(val) => setSelectedSubject(val)}
+                            options={subjectOptions}
+                            placeholder="All Subjects"
                         />
                     </div>
 
                     <div className={styles.formGroup}><label htmlFor="startDate">Start Date</label><input type="date" id="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} /></div>
                     <div className={styles.formGroup}><label htmlFor="endDate">End Date</label><input type="date" id="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} /></div>
-                    
                     <div className={styles.filterButtons}>
                         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleFilter}>Apply Filter</button>
                         <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={handleReset}>Reset</button>

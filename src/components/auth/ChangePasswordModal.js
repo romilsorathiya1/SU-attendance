@@ -21,7 +21,7 @@ export default function ChangePasswordModal({ user, onClose }) {
         setLoading(true);
 
         try {
-            const res = await fetch('/attendance/api/auth/change-password', {
+            const res = await fetch('/api/auth/change-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -51,7 +51,6 @@ export default function ChangePasswordModal({ user, onClose }) {
         <div className={styles.overlay}>
             <div className={styles.modalContainer}>
                 <button onClick={onClose} className={styles.closeBtn}>&times;</button>
-                
                 <div className={styles.content}>
                     <h2 className={styles.title}>Change Password</h2>
                     <p className={styles.subtitle}>Update your account security key.</p>
@@ -59,31 +58,31 @@ export default function ChangePasswordModal({ user, onClose }) {
                     <form onSubmit={handleSubmit}>
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Current Password</label>
-                            <input 
-                                type="password" 
+                            <input
+                                type="password"
                                 className={styles.input}
                                 value={formData.current}
-                                onChange={e => setFormData({...formData, current: e.target.value})}
+                                onChange={e => setFormData({ ...formData, current: e.target.value })}
                                 required
                             />
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.label}>New Password</label>
-                            <input 
-                                type="password" 
+                            <input
+                                type="password"
                                 className={styles.input}
                                 value={formData.new}
-                                onChange={e => setFormData({...formData, new: e.target.value})}
+                                onChange={e => setFormData({ ...formData, new: e.target.value })}
                                 required
                             />
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Confirm New Password</label>
-                            <input 
-                                type="password" 
+                            <input
+                                type="password"
                                 className={styles.input}
                                 value={formData.confirm}
-                                onChange={e => setFormData({...formData, confirm: e.target.value})}
+                                onChange={e => setFormData({ ...formData, confirm: e.target.value })}
                                 required
                             />
                         </div>

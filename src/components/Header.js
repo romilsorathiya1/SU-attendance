@@ -1,17 +1,17 @@
-'use client'; 
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { 
-    FaSignOutAlt, 
-    FaKey, 
-    FaQuestionCircle, 
+import {
+    FaSignOutAlt,
+    FaKey,
+    FaQuestionCircle,
     FaUserShield,   // Icon for Admin
     FaClipboardList,// Icon for Teacher
     FaListAlt       // Icon for Student
 } from 'react-icons/fa';
-import styles from '../styles/Header.module.css'; 
+import styles from '../styles/Header.module.css';
 
 // Import your Auth Components
 import LoginHelpModal from './auth/LoginHelpModal';
@@ -21,9 +21,9 @@ import ForgotPasswordFlow from './auth/ForgotPasswordFlow';
 const Header = () => {
     const [user, setUser] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    
+
     const router = useRouter();
-    const pathname = usePathname(); 
+    const pathname = usePathname();
     const dropdownRef = useRef(null);
 
     // --- Modals State ---
@@ -69,13 +69,13 @@ const Header = () => {
     const handleLogout = async () => {
         localStorage.removeItem('user');
         try {
-            await fetch('/attendance/api/auth/logout', { method: 'POST' });
+            await fetch('/api/auth/logout', { method: 'POST' });
         } catch (error) {
             console.error('Logout failed', error);
         }
         setUser(null);
         setIsDropdownOpen(false);
-        router.push('/'); 
+        router.push('/');
     };
 
     // Helper to close dropdown and navigate
@@ -93,23 +93,23 @@ const Header = () => {
 
                 <div className={styles.userMenu} ref={dropdownRef}>
                     {!user ? (
-                        <button 
+                        <button
                             className={styles.userProfileButton}
                             onClick={() => setShowHelpModal(true)}
-                            style={{ 
-                                padding: '8px 15px', 
-                                borderRadius: '20px', 
+                            style={{
+                                padding: '8px 15px',
+                                borderRadius: '20px',
                                 border: '1px solid #007bff',
-                                background: 'white' 
+                                background: 'white'
                             }}
                         >
-                            <FaQuestionCircle style={{ marginRight: '8px', color: '#007bff', fontSize: '1.1rem' }}/>
+                            <FaQuestionCircle style={{ marginRight: '8px', color: '#007bff', fontSize: '1.1rem' }} />
                             <span style={{ color: '#007bff', fontWeight: '600', fontSize: '0.9rem' }}>How to Login?</span>
                         </button>
                     ) : (
                         <>
-                            <button 
-                                className={styles.userProfileButton} 
+                            <button
+                                className={styles.userProfileButton}
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                             >
                                 <div className={styles.userAvatar}>
@@ -146,7 +146,6 @@ const Header = () => {
                                                 <span>View Attendance</span>
                                             </li>
                                         )}
-                                        
                                         <hr style={{ margin: '5px 0', border: '0', borderTop: '1px solid #eee' }} />
 
                                         {/* --- COMMON ITEMS --- */}
@@ -167,27 +166,27 @@ const Header = () => {
             </header>
 
             {/* --- Modals --- */}
-            
+
             {showHelpModal && (
-                <LoginHelpModal 
+                <LoginHelpModal
                     onClose={() => setShowHelpModal(false)}
                     onOpenForgot={() => {
                         setShowHelpModal(false);
                         setShowForgotPassModal(true);
-                    }} 
+                    }}
                 />
             )}
 
             {showChangePassModal && user && (
-                <ChangePasswordModal 
-                    user={user} 
-                    onClose={() => setShowChangePassModal(false)} 
+                <ChangePasswordModal
+                    user={user}
+                    onClose={() => setShowChangePassModal(false)}
                 />
             )}
 
             {showForgotPassModal && (
-                <ForgotPasswordFlow 
-                    onClose={() => setShowForgotPassModal(false)} 
+                <ForgotPasswordFlow
+                    onClose={() => setShowForgotPassModal(false)}
                 />
             )}
         </>

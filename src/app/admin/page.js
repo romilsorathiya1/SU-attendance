@@ -5,7 +5,11 @@ import Link from 'next/link';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { FaUserGraduate, FaChalkboardTeacher, FaUniversity, FaBookOpen, FaFileImport, FaInfoCircle, FaFileDownload, FaArrowUp } from 'react-icons/fa';
+<<<<<<< HEAD
 import * as XLSX from 'xlsx'; 
+=======
+import * as XLSX from 'xlsx';
+>>>>>>> 5ee86fc (update packages and fix login error)
 import styles from '../../styles/Admin.module.css';
 import CustomSelect from '../../components/Select';
 
@@ -35,25 +39,45 @@ export default function AdminPanel() {
 
     const fetchData = async () => {
         try {
+<<<<<<< HEAD
             const res = await fetch('/attendance/api/data?type=all');
             const result = await res.json();
             
+=======
+            const res = await fetch('/api/data?type=all');
+            const result = await res.json();
+
+>>>>>>> 5ee86fc (update packages and fix login error)
             const formatData = (arr) => arr ? arr.map(i => ({ ...i, id: i._id, enrollmentNo: i.enrollmentNo || i._id })) : [];
 
             setData({
                 colleges: formatData(result.colleges),
+<<<<<<< HEAD
                 courses: formatData(result.courses).map(c => ({ 
                     ...c, 
                     // Subjects might be array (legacy) or object (new). Backend saves 'details.subjects'.
                     subjects: c.details?.subjects || {}, 
                     college: c.parentName 
+=======
+                courses: formatData(result.courses).map(c => ({
+                    ...c,
+                    // Subjects might be array (legacy) or object (new). Backend saves 'details.subjects'.
+                    subjects: c.details?.subjects || {},
+                    college: c.parentName
+>>>>>>> 5ee86fc (update packages and fix login error)
                 })),
                 classes: formatData(result.classes).map(cls => {
                     const parentCourse = result.courses.find(course => course.name === cls.parentName);
                     const collegeName = parentCourse ? parentCourse.parentName : '';
+<<<<<<< HEAD
                     return { 
                         ...cls, 
                         semester: cls.details?.semester || '', 
+=======
+                    return {
+                        ...cls,
+                        semester: cls.details?.semester || '',
+>>>>>>> 5ee86fc (update packages and fix login error)
                         course: cls.parentName,
                         college: collegeName
                     };
@@ -77,7 +101,11 @@ export default function AdminPanel() {
             if (student.semester && semCounts.hasOwnProperty(student.semester)) {
                 semCounts[student.semester]++;
             } else if (student.semester) {
+<<<<<<< HEAD
                  semCounts[student.semester] = (semCounts[student.semester] || 0) + 1;
+=======
+                semCounts[student.semester] = (semCounts[student.semester] || 0) + 1;
+>>>>>>> 5ee86fc (update packages and fix login error)
             }
         });
 
@@ -107,7 +135,11 @@ export default function AdminPanel() {
         if (type === 'class') payload.details = { semester: newEntry.semester };
         if (type === 'course' || type === 'class') payload.parentName = newEntry.course || newEntry.college;
 
+<<<<<<< HEAD
         const res = await fetch('/attendance/api/admin/crud', {
+=======
+        const res = await fetch('/api/admin/crud', {
+>>>>>>> 5ee86fc (update packages and fix login error)
             method: 'POST',
             body: JSON.stringify({ action: 'create', collection: mapType[type], data: payload })
         });
@@ -129,7 +161,11 @@ export default function AdminPanel() {
     const handleDelete = async (type, selectedIds) => {
         if (window.confirm(`Are you sure you want to delete ${selectedIds.length} items?`)) {
             try {
+<<<<<<< HEAD
                 const res = await fetch('/attendance/api/admin/crud', {
+=======
+                const res = await fetch('/api/admin/crud', {
+>>>>>>> 5ee86fc (update packages and fix login error)
                     method: 'POST',
                     body: JSON.stringify({ action: 'delete', collection: type, data: selectedIds })
                 });
@@ -169,20 +205,36 @@ export default function AdminPanel() {
         }
 
         const confirmMsg = `Are you sure you want to promote filtered students?\n\n` +
+<<<<<<< HEAD
                            `College: ${currentFilters.college}\n` +
                            `Course: ${currentFilters.course}\n` +
                            `Current Sem: ${currentFilters.semester}\n` +
                            `${currentFilters.class ? `Class: ${currentFilters.class}` : ''}\n\n` +
                            `This will increase their semester by 1.`;
+=======
+            `College: ${currentFilters.college}\n` +
+            `Course: ${currentFilters.course}\n` +
+            `Current Sem: ${currentFilters.semester}\n` +
+            `${currentFilters.class ? `Class: ${currentFilters.class}` : ''}\n\n` +
+            `This will increase their semester by 1.`;
+>>>>>>> 5ee86fc (update packages and fix login error)
 
         if (window.confirm(confirmMsg)) {
             try {
                 setLoading(true);
+<<<<<<< HEAD
                 const res = await fetch('/attendance/api/admin/crud', {
                     method: 'POST',
                     body: JSON.stringify({ 
                         action: 'promote_filtered', 
                         data: currentFilters 
+=======
+                const res = await fetch('/api/admin/crud', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'promote_filtered',
+                        data: currentFilters
+>>>>>>> 5ee86fc (update packages and fix login error)
                     })
                 });
                 const result = await res.json();
@@ -200,6 +252,7 @@ export default function AdminPanel() {
             }
         }
     };
+<<<<<<< HEAD
     
     const handleSaveAttendance = async (id, newStatus) => {
         try {
@@ -208,17 +261,35 @@ export default function AdminPanel() {
                 body: JSON.stringify({ action: 'update', collection: 'attendance', data: { id, status: newStatus } })
             });
             if (res.ok) { alert('Attendance updated'); setEditAttendanceModal(null); fetchData(); } 
+=======
+
+    const handleSaveAttendance = async (id, newStatus) => {
+        try {
+            const res = await fetch('/api/admin/crud', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'update', collection: 'attendance', data: { id, status: newStatus } })
+            });
+            if (res.ok) { alert('Attendance updated'); setEditAttendanceModal(null); fetchData(); }
+>>>>>>> 5ee86fc (update packages and fix login error)
             else alert('Failed to update');
         } catch (e) { alert('Error updating'); }
     };
 
     const handleUpdateSubjects = async (courseId, updatedSubjectsObject) => {
         try {
+<<<<<<< HEAD
             const res = await fetch('/attendance/api/admin/crud', {
                 method: 'POST',
                 body: JSON.stringify({ action: 'update', collection: 'course', data: { id: courseId, subjects: updatedSubjectsObject } })
             });
             if (res.ok) fetchData(); 
+=======
+            const res = await fetch('/api/admin/crud', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'update', collection: 'course', data: { id: courseId, subjects: updatedSubjectsObject } })
+            });
+            if (res.ok) fetchData();
+>>>>>>> 5ee86fc (update packages and fix login error)
             else alert('Failed to update subjects');
         } catch (e) { alert('Error updating subjects'); }
     };
@@ -228,6 +299,7 @@ export default function AdminPanel() {
             case 'dashboard':
                 return <DashboardSection stats={data} chartData={chartData} />;
             case 'students':
+<<<<<<< HEAD
                 return <DataTable 
                     title="Students" 
                     data={data.students} 
@@ -237,6 +309,17 @@ export default function AdminPanel() {
                     onDelete={(ids) => handleDelete('students', ids)} 
                     colleges={data.colleges} 
                     courses={data.courses} 
+=======
+                return <DataTable
+                    title="Students"
+                    data={data.students}
+                    headers={['Enrollment No', 'Name', 'Email', 'College', 'Course', 'Class', 'Semester', 'Mobile']}
+                    onAdd={() => setModal('student')}
+                    onImport={() => setImportModalType('student')}
+                    onDelete={(ids) => handleDelete('students', ids)}
+                    colleges={data.colleges}
+                    courses={data.courses}
+>>>>>>> 5ee86fc (update packages and fix login error)
                     allClasses={data.classes}
                     onPromoteFiltered={handlePromoteFiltered} // Pass the handler
                 />;
@@ -315,10 +398,17 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
     const [selectedRows, setSelectedRows] = useState([]);
 
     const dataKeys = useMemo(() => {
+<<<<<<< HEAD
         const mapping = { 
             'No.': 'rowIndex', 'Enrollment No': 'enrollmentNo', 'ID': 'id', 'Name': 'name', 'Email': 'email', 
             'College Name': 'name', 'Course Name': 'name', 'Class Name': 'name', 
             'College': 'college', 'Course': 'course', 'Class': 'class', 'Semester': 'semester', 'Mobile': 'mobile', 'Subjects': 'subjects' 
+=======
+        const mapping = {
+            'No.': 'rowIndex', 'Enrollment No': 'enrollmentNo', 'ID': 'id', 'Name': 'name', 'Email': 'email',
+            'College Name': 'name', 'Course Name': 'name', 'Class Name': 'name',
+            'College': 'college', 'Course': 'course', 'Class': 'class', 'Semester': 'semester', 'Mobile': 'mobile', 'Subjects': 'subjects'
+>>>>>>> 5ee86fc (update packages and fix login error)
         };
         return headers.map(h => mapping[h] || h.toLowerCase());
     }, [headers]);
@@ -347,7 +437,11 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
     }), [data, filters]);
 
     useEffect(() => { setSelectedRows([]); }, [filteredData]);
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 5ee86fc (update packages and fix login error)
     // Corrected Select All Logic
     const handleSelectAll = (e) => setSelectedRows(e.target.checked ? filteredData.map(r => r.enrollmentNo || r.id) : []);
     const handleSelectRow = (id) => setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
@@ -368,11 +462,19 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
             <div className={styles.tableHeader}>
                 <h2>{title} List</h2>
                 <div className={styles.tableHeaderActions}>
+<<<<<<< HEAD
                     
                     {/* --- NEW INCREASE SEMESTER BUTTON --- */}
                     {title === 'Students' && (
                         <button 
                             className={styles.addNewBtn} 
+=======
+
+                    {/* --- NEW INCREASE SEMESTER BUTTON --- */}
+                    {title === 'Students' && (
+                        <button
+                            className={styles.addNewBtn}
+>>>>>>> 5ee86fc (update packages and fix login error)
                             onClick={() => onPromoteFiltered(filters)}
                             disabled={!canPromote}
                             style={{
@@ -383,19 +485,28 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
                             }}
                             title="Filter by College, Course and Semester to enable"
                         >
+<<<<<<< HEAD
                             <FaArrowUp style={{marginRight: 5}}/> 
+=======
+                            <FaArrowUp style={{ marginRight: 5 }} />
+>>>>>>> 5ee86fc (update packages and fix login error)
                             Increase Semester
                         </button>
                     )}
                     {/* ------------------------------------ */}
 
                     {selectedRows.length > 0 && <button className={`${styles.addNewBtn} ${styles.deleteBtn}`} onClick={() => { onDelete(selectedRows); setSelectedRows([]); }}>Delete Selected</button>}
+<<<<<<< HEAD
                     {['Students', 'Teachers', 'Classes'].includes(title) && <button className={`${styles.addNewBtn} ${styles.importBtn}`} onClick={onImport}><FaFileImport style={{marginRight: 5}}/> Import Excel</button>}
+=======
+                    {['Students', 'Teachers', 'Classes'].includes(title) && <button className={`${styles.addNewBtn} ${styles.importBtn}`} onClick={onImport}><FaFileImport style={{ marginRight: 5 }} /> Import Excel</button>}
+>>>>>>> 5ee86fc (update packages and fix login error)
                     <button className={styles.addNewBtn} onClick={onAdd}>Add New {title.slice(0, -1)}</button>
                 </div>
             </div>
             <div className={styles.filters}>
                 {title === 'Students' && <input type="text" placeholder="Search Enrollment No..." value={filters.id} onChange={e => handleFilterChange('id', e.target.value)} />}
+<<<<<<< HEAD
                 
                 <input type="text" placeholder="Search Name..." value={filters.name} onChange={e => handleFilterChange('name', e.target.value)} />
                 {['Students', 'Teachers', 'Courses', 'Classes'].includes(title) && <CustomSelect selectedValue={filters.college} onChange={(val) => handleFilterChange('college', val)} options={colleges.map(c => ({ value: c.name, label: c.name }))} placeholder="All Colleges" />}
@@ -403,6 +514,15 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
                 
                 {['Students', 'Classes'].includes(title) && <CustomSelect selectedValue={filters.semester} onChange={(val) => handleFilterChange('semester', val)} options={SEMESTERS.map(y => ({ value: y, label: y }))} placeholder="All Semesters" />}
                 
+=======
+
+                <input type="text" placeholder="Search Name..." value={filters.name} onChange={e => handleFilterChange('name', e.target.value)} />
+                {['Students', 'Teachers', 'Courses', 'Classes'].includes(title) && <CustomSelect selectedValue={filters.college} onChange={(val) => handleFilterChange('college', val)} options={colleges.map(c => ({ value: c.name, label: c.name }))} placeholder="All Colleges" />}
+                {['Students', 'Classes'].includes(title) && <CustomSelect selectedValue={filters.course} onChange={(val) => handleFilterChange('course', val)} options={availableCourses.map(c => ({ value: c.name, label: c.name }))} placeholder="All Courses" disabled={!filters.college} />}
+
+                {['Students', 'Classes'].includes(title) && <CustomSelect selectedValue={filters.semester} onChange={(val) => handleFilterChange('semester', val)} options={SEMESTERS.map(y => ({ value: y, label: y }))} placeholder="All Semesters" />}
+
+>>>>>>> 5ee86fc (update packages and fix login error)
                 {title === 'Students' && <CustomSelect selectedValue={filters.class} onChange={(val) => handleFilterChange('class', val)} options={availableClasses.map(c => ({ value: c.name, label: c.name }))} placeholder="All Classes" disabled={!filters.course} />}
             </div>
             <div className={styles.tableContainer}>
@@ -415,15 +535,24 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
                         </tr>
                     </thead>
                     <tbody>
+<<<<<<< HEAD
                         {filteredData.map((row, rowIndex) => { 
+=======
+                        {filteredData.map((row, rowIndex) => {
+>>>>>>> 5ee86fc (update packages and fix login error)
                             const rowId = row.enrollmentNo || row.id;
                             return (
                                 <tr key={rowId} className={selectedRows.includes(rowId) ? styles.selectedRow : ''}>
                                     <td><input type="checkbox" className={styles.checkbox} checked={selectedRows.includes(rowId)} onChange={() => handleSelectRow(rowId)} /></td>
                                     {dataKeys.map((key, index) => (
                                         <td key={key} data-label={headers[index]}>
+<<<<<<< HEAD
                                             {key === 'rowIndex' 
                                                 ? rowIndex + 1 
+=======
+                                            {key === 'rowIndex'
+                                                ? rowIndex + 1
+>>>>>>> 5ee86fc (update packages and fix login error)
                                                 : (key === 'subjects' ? getSubjectCount(row[key]) + ' Subjects' : row[key])
                                             }
                                         </td>
@@ -431,7 +560,11 @@ const DataTable = ({ title, data, headers, onAdd, onImport, onDelete, colleges =
                                     {(title === 'Courses' || title === 'Students') && (
                                         <td data-label="Actions">
                                             {title === 'Courses' && <button className={styles.manageBtn} onClick={() => onManageSubjects(row)}>Manage Subjects</button>}
+<<<<<<< HEAD
                                             {title === 'Students' && <Link href={`/student/${row.id}`}><button className={styles.manageBtn} style={{backgroundColor: '#007bff'}}>View Full Report</button></Link>}
+=======
+                                            {title === 'Students' && <Link href={`/student/${row.id}`}><button className={styles.manageBtn} style={{ backgroundColor: '#007bff' }}>View Full Report</button></Link>}
+>>>>>>> 5ee86fc (update packages and fix login error)
                                         </td>
                                     )}
                                 </tr>
@@ -495,7 +628,11 @@ const AttendanceTable = ({ data, colleges, courses, allClasses, onDelete, onEdit
         const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Attendance Report");
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 5ee86fc (update packages and fix login error)
         const dateStr = new Date().toISOString().split('T')[0];
         XLSX.writeFile(wb, `Attendance_Report_${dateStr}.xlsx`);
     };
@@ -505,15 +642,24 @@ const AttendanceTable = ({ data, colleges, courses, allClasses, onDelete, onEdit
             <div className={styles.tableHeader}>
                 <h2>Attendance Records</h2>
                 <div className={styles.tableHeaderActions}>
+<<<<<<< HEAD
                     <button className={`${styles.addNewBtn} ${styles.importBtn}`} onClick={handleExportExcel} style={{backgroundColor: '#28a745'}}>
                         <FaFileDownload style={{marginRight: 5}}/> Download Excel
+=======
+                    <button className={`${styles.addNewBtn} ${styles.importBtn}`} onClick={handleExportExcel} style={{ backgroundColor: '#28a745' }}>
+                        <FaFileDownload style={{ marginRight: 5 }} /> Download Excel
+>>>>>>> 5ee86fc (update packages and fix login error)
                     </button>
                     {selectedRows.length > 0 && <button className={`${styles.addNewBtn} ${styles.deleteBtn}`} onClick={() => { onDelete(selectedRows); setSelectedRows([]); }}>Delete Selected</button>}
                 </div>
             </div>
             <div className={styles.filters}>
                 <input type="text" placeholder="Search Enrollment No..." value={filters.studentId} onChange={e => setFilters({ ...filters, studentId: e.target.value })} />
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> 5ee86fc (update packages and fix login error)
                 <CustomSelect selectedValue={filters.college} onChange={(val) => setFilters({ ...filters, college: val, course: '', semester: '', class: '' })} options={colleges.map(c => ({ value: c.name, label: c.name }))} placeholder="All Colleges" />
                 <CustomSelect selectedValue={filters.course} onChange={(val) => setFilters({ ...filters, course: val, semester: '', class: '' })} options={courses.filter(c => !filters.college || c.college === filters.college).map(c => ({ value: c.name, label: c.name }))} placeholder="All Courses" />
                 <CustomSelect selectedValue={filters.semester} onChange={(val) => setFilters({ ...filters, semester: val, class: '' })} options={SEMESTERS.map(s => ({ value: s, label: s }))} placeholder="All Semesters" disabled={!filters.course} />
@@ -539,7 +685,11 @@ const AttendanceTable = ({ data, colleges, courses, allClasses, onDelete, onEdit
                                 <td><input type="checkbox" className={styles.checkbox} checked={selectedRows.includes(row.id)} onChange={() => handleSelectRow(row.id)} /></td>
                                 <td data-label="ID">{row.studentId}</td>
                                 <td data-label="Name">{row.studentName}</td>
+<<<<<<< HEAD
                                 <td data-label="Recorded By" style={{color: '#666', fontWeight: '500'}}>{row.recordedBy || 'N/A'}</td>
+=======
+                                <td data-label="Recorded By" style={{ color: '#666', fontWeight: '500' }}>{row.recordedBy || 'N/A'}</td>
+>>>>>>> 5ee86fc (update packages and fix login error)
                                 <td data-label="Date">{row.date}</td>
                                 <td data-label="Time">{row.startTime && row.endTime ? `${row.startTime} - ${row.endTime}` : 'N/A'}</td>
                                 <td data-label="Status"><span className={row.status === 'Present' || row.status === 'P' ? styles.statusPresent : styles.statusAbsent}>{row.status === 'P' ? 'Present' : (row.status === 'A' ? 'Absent' : row.status)}</span></td>
@@ -572,14 +722,22 @@ const SubjectModal = ({ course, onClose, onUpdate }) => {
     const handleAdd = () => {
         if (newSubject && selectedSemester) {
             const currentList = groupedSubjects[selectedSemester] || [];
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 5ee86fc (update packages and fix login error)
             // Prevent duplicate in same semester
             if (!currentList.includes(newSubject)) {
                 const updated = {
                     ...groupedSubjects,
                     [selectedSemester]: [...currentList, newSubject]
                 };
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> 5ee86fc (update packages and fix login error)
                 setGroupedSubjects(updated);
                 setNewSubject('');
                 onUpdate(course.id, updated); // Save immediately
@@ -591,7 +749,11 @@ const SubjectModal = ({ course, onClose, onUpdate }) => {
         if (confirm(`Remove ${sub} from ${sem}?`)) {
             const updatedList = groupedSubjects[sem].filter(s => s !== sub);
             const updated = { ...groupedSubjects, [sem]: updatedList };
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 5ee86fc (update packages and fix login error)
             // If empty, maybe remove the key? Keeping it is fine too.
             if (updatedList.length === 0) delete updated[sem];
 
@@ -605,6 +767,7 @@ const SubjectModal = ({ course, onClose, onUpdate }) => {
             <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                 <div className={styles.modalHeader}><h2>Manage Subjects: {course.name}</h2><span className={styles.closeBtn} onClick={onClose}>&times;</span></div>
                 <div className={styles.modalBody}>
+<<<<<<< HEAD
                     
                     {/* Add New Subject Section */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '10px', marginBottom: '20px', alignItems: 'end' }}>
@@ -631,6 +794,34 @@ const SubjectModal = ({ course, onClose, onUpdate }) => {
                     </div>
 
                     <hr style={{border: '0', borderTop: '1px solid #eee', margin: '20px 0'}} />
+=======
+
+                    {/* Add New Subject Section */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '10px', marginBottom: '20px', alignItems: 'end' }}>
+                        <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Select Semester</label>
+                            <CustomSelect
+                                selectedValue={selectedSemester}
+                                onChange={(val) => setSelectedSemester(val)}
+                                options={SEMESTERS.map(s => ({ value: s, label: s }))}
+                                placeholder="Sem"
+                            />
+                        </div>
+                        <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Subject Name</label>
+                            <input
+                                type="text"
+                                placeholder="Enter Subject"
+                                value={newSubject}
+                                onChange={e => setNewSubject(e.target.value)}
+                                style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc', width: '100%' }}
+                            />
+                        </div>
+                        <button onClick={handleAdd} className={`${styles.addNewBtn} ${styles.saveBtn}`} style={{ height: '42px' }}>Add</button>
+                    </div>
+
+                    <hr style={{ border: '0', borderTop: '1px solid #eee', margin: '20px 0' }} />
+>>>>>>> 5ee86fc (update packages and fix login error)
 
                     {/* Display Subjects Grouped by Semester */}
                     <div className={styles.subjectListContainer}>
@@ -643,11 +834,19 @@ const SubjectModal = ({ course, onClose, onUpdate }) => {
                                             {sub} <span onClick={() => handleDelete(sem, sub)}>&times;</span>
                                         </div>
                                     ))}
+<<<<<<< HEAD
                                     {groupedSubjects[sem].length === 0 && <span style={{fontSize:'0.8rem', color:'#999'}}>No subjects</span>}
                                 </div>
                             </div>
                         ))}
                         {Object.keys(groupedSubjects).length === 0 && <p style={{textAlign:'center', color:'#888'}}>No subjects added yet.</p>}
+=======
+                                    {groupedSubjects[sem].length === 0 && <span style={{ fontSize: '0.8rem', color: '#999' }}>No subjects</span>}
+                                </div>
+                            </div>
+                        ))}
+                        {Object.keys(groupedSubjects).length === 0 && <p style={{ textAlign: 'center', color: '#888' }}>No subjects added yet.</p>}
+>>>>>>> 5ee86fc (update packages and fix login error)
                     </div>
 
                 </div>
@@ -746,11 +945,19 @@ const ExcelImportModal = ({ type, onClose, onSave }) => {
     const [file, setFile] = useState(null);
 
     const getColumnRequirements = (importType) => {
+<<<<<<< HEAD
         switch(importType) {
             case 'student':
                 return {
                     title: "Student Data Requirements",
                     columns: ['Enrollment No', 'Name', 'Email', 'Mobile', 'College', 'Course', 'Semester', 'Class'], 
+=======
+        switch (importType) {
+            case 'student':
+                return {
+                    title: "Student Data Requirements",
+                    columns: ['Enrollment No', 'Name', 'Email', 'Mobile', 'College', 'Course', 'Semester', 'Class'],
+>>>>>>> 5ee86fc (update packages and fix login error)
                     note: "Use 'Semester 1', 'Semester 2', etc."
                 };
             case 'teacher':
@@ -762,7 +969,11 @@ const ExcelImportModal = ({ type, onClose, onSave }) => {
             case 'class':
                 return {
                     title: "Class Data Requirements",
+<<<<<<< HEAD
                     columns: ['Name', 'College', 'Course', 'Semester'], 
+=======
+                    columns: ['Name', 'College', 'Course', 'Semester'],
+>>>>>>> 5ee86fc (update packages and fix login error)
                     note: "Valid Semesters: 'Semester 1', 'Semester 2', etc."
                 };
             default:
@@ -781,7 +992,11 @@ const ExcelImportModal = ({ type, onClose, onSave }) => {
             const wsname = wb.SheetNames[0];
             const ws = wb.Sheets[wsname];
             const rawData = XLSX.utils.sheet_to_json(ws);
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 5ee86fc (update packages and fix login error)
             const mappedData = rawData.map(row => {
                 const newRow = {};
                 const getValue = (keyName) => {
@@ -796,10 +1011,17 @@ const ExcelImportModal = ({ type, onClose, onSave }) => {
                     newRow.mobile = getValue('Mobile');
                     newRow.college = getValue('College');
                     newRow.course = getValue('Course');
+<<<<<<< HEAD
                     newRow.semester = getValue('Semester') || getValue('Year'); 
                     newRow.class = getValue('Class');
                 } else if (type === 'teacher') {
                     newRow.email = getValue('Email'); 
+=======
+                    newRow.semester = getValue('Semester') || getValue('Year');
+                    newRow.class = getValue('Class');
+                } else if (type === 'teacher') {
+                    newRow.email = getValue('Email');
+>>>>>>> 5ee86fc (update packages and fix login error)
                     newRow.name = getValue('Name');
                     newRow.college = getValue('College');
                     newRow.password = getValue('Password') || '123456';
@@ -818,6 +1040,7 @@ const ExcelImportModal = ({ type, onClose, onSave }) => {
 
     return (
         <div className={styles.modal} onClick={onClose}>
+<<<<<<< HEAD
             <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{maxWidth: '500px'}}>
                 <div className={styles.modalHeader}><h2>Import {type.charAt(0).toUpperCase() + type.slice(1)}s</h2><span className={styles.closeBtn} onClick={onClose}>&times;</span></div>
                 <div style={{ backgroundColor: '#eef6fc', padding: '15px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid #2d89ef' }}>
@@ -829,6 +1052,19 @@ const ExcelImportModal = ({ type, onClose, onSave }) => {
                 </div>
                 <div className={styles.formGroup}><label>Upload File (.xlsx, .csv)</label><input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={e => setFile(e.target.files[0])} style={{ padding: '10px', border: '1px dashed #ccc', width: '100%', borderRadius: '5px', cursor: 'pointer' }} /></div>
                 <div className={styles.modalButtons}><button onClick={handleImport} className={`${styles.submitBtn} ${styles.saveBtn}`} style={{width: '100%'}}><FaFileImport style={{marginRight: '8px'}}/> Process Import</button></div>
+=======
+            <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+                <div className={styles.modalHeader}><h2>Import {type.charAt(0).toUpperCase() + type.slice(1)}s</h2><span className={styles.closeBtn} onClick={onClose}>&times;</span></div>
+                <div style={{ backgroundColor: '#eef6fc', padding: '15px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid #2d89ef' }}>
+                    <h4 style={{ margin: '0 0 10px 0', display: 'flex', alignItems: 'center', color: '#1a5c9e' }}><FaInfoCircle style={{ marginRight: '8px' }} /> Required File Columns</h4>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                        {reqs.columns.map((col, idx) => (<span key={idx} style={{ backgroundColor: '#fff', border: '1px solid #cce3f5', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', color: '#0056b3' }}>{col}</span>))}
+                    </div>
+                    {reqs.note && <p style={{ fontSize: '12px', fontStyle: 'italic', color: '#666', margin: 0 }}>* {reqs.note}</p>}
+                </div>
+                <div className={styles.formGroup}><label>Upload File (.xlsx, .csv)</label><input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={e => setFile(e.target.files[0])} style={{ padding: '10px', border: '1px dashed #ccc', width: '100%', borderRadius: '5px', cursor: 'pointer' }} /></div>
+                <div className={styles.modalButtons}><button onClick={handleImport} className={`${styles.submitBtn} ${styles.saveBtn}`} style={{ width: '100%' }}><FaFileImport style={{ marginRight: '8px' }} /> Process Import</button></div>
+>>>>>>> 5ee86fc (update packages and fix login error)
             </div>
         </div>
     );
